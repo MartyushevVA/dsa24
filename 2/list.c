@@ -33,19 +33,21 @@ int size(Stack *stack)
     return len;
 }
 
-void freeing(Stack* stack)
+void freeing(Stack *stack)
 {
     Item *ptr = stack->top;
+    Item *temp;
     while (ptr)
     {
         free(ptr->term);
+        temp = ptr->next;
         free(ptr);
-        ptr = ptr->next;
+        ptr = temp;
     }
     free(stack);
 }
 
-Stack* init()
+Stack *init()
 {
     Stack *stack = (Stack *)malloc(sizeof(Stack));
     (*stack).top = NULL;

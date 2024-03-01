@@ -29,18 +29,24 @@ char *process(char *src)
             char *first = pop(stack);
             char *second = pop(stack);
             char *temp = NULL;
-            temp = (char *)calloc(strlen(first) + 3, sizeof(char));
-            strcat(temp, "(");
-            strcat(temp, first);
-            strcat(temp, ")");
-            free(first);
-            first = temp;
-            temp = (char *)calloc(strlen(second) + 3, sizeof(char));
-            strcat(temp, "(");
-            strcat(temp, second);
-            strcat(temp, ")");
-            free(second);
-            second = temp;
+            if (strlen(first) > 1)
+            {
+                temp = (char *)calloc(strlen(first) + 3, sizeof(char));
+                strcat(temp, "(");
+                strcat(temp, first);
+                strcat(temp, ")");
+                free(first);
+                first = temp;
+            }
+            if (strlen(second) > 1)
+            {
+                temp = (char *)calloc(strlen(second) + 3, sizeof(char));
+                strcat(temp, "(");
+                strcat(temp, second);
+                strcat(temp, ")");
+                free(second);
+                second = temp;
+            }
             temp = (char *)calloc(strlen(first) + strlen(second) + 2, sizeof(char));
             strcat(temp, second);
             char *let = (char *)calloc(2, sizeof(char));
