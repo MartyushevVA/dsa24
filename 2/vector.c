@@ -3,10 +3,15 @@
 #include <string.h>
 #include "hfile_v.h"
 
+int check(Stack *stack)
+{
+    return size(stack) == stack->allocated;
+}
+
 void push(Stack *stack, char *elem)
 {
     stack->top++;
-    stack->list = (char **)realloc(stack->list, (stack->top + 1) * sizeof(char *));
+    // stack->list = (char **)realloc(stack->list, (stack->top + 1) * sizeof(char *));
     (stack->list)[stack->top] = elem;
 }
 
@@ -14,8 +19,8 @@ char *pop(Stack *stack)
 {
     char *a = (stack->list)[stack->top];
     stack->top--;
-    if (stack->top > -1)
-        stack->list = (char **)realloc(stack->list, (stack->top + 1) * sizeof(char *));
+    /*if (stack->top > -1)
+        stack->list = (char **)realloc(stack->list, (stack->top + 1) * sizeof(char *));*/
     return a;
 }
 
@@ -32,10 +37,11 @@ void freeing(Stack *stack)
     free(stack);
 }
 
-Stack *init()
+Stack *init(int allocated)
 {
     Stack *stack = (Stack *)malloc(sizeof(Stack));
     stack->top = -1;
-    stack->list = (char **)calloc(1, sizeof(char *));
+    stack->list = (char **)calloc(allocated + 1, sizeof(char *));
+    stack->allocated = allocated;
     return stack;
 }

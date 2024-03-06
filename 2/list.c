@@ -3,6 +3,11 @@
 #include <string.h>
 #include "hfile_l.h"
 
+int check(Stack *stack)
+{
+    return 0;
+}
+
 void push(Stack *stack, char *elem)
 {
     Item *item = (Item *)malloc(sizeof(Item));
@@ -47,7 +52,7 @@ void freeing(Stack *stack)
     free(stack);
 }
 
-Stack *init()
+Stack *init(int allocated)
 {
     Stack *stack = (Stack *)malloc(sizeof(Stack));
     (*stack).top = NULL;

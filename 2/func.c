@@ -4,9 +4,9 @@
 // #include "hfile_l.h"
 #include "hfile_v.h"
 
-char *process(char *src)
+char *process(char *src, int allocated)
 {
-    Stack *stack = init();
+    Stack *stack = init(allocated);
     char *new;
     int i = 0;
     char symb;
@@ -15,6 +15,11 @@ char *process(char *src)
         symb = src[i];
         if ((symb >= 'a' && symb <= 'z') || (symb >= 'A' && symb <= 'Z') || (symb >= '0' && symb <= '9'))
         {
+            if (check(stack))
+            {
+                freeing(stack);
+                return NULL;
+            }
             char *let = (char *)calloc(2, sizeof(char));
             let[0] = symb;
             push(stack, let);
@@ -49,14 +54,14 @@ char *process(char *src)
             }
             temp = (char *)calloc(strlen(first) + strlen(second) + 2, sizeof(char));
             strcat(temp, second);
+            free(second);
             char *let = (char *)calloc(2, sizeof(char));
             let[0] = symb;
             strcat(temp, let);
             free(let);
             strcat(temp, first);
-            push(stack, temp);
             free(first);
-            free(second);
+            push(stack, temp);
         }
         i++;
     }

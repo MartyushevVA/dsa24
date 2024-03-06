@@ -7,6 +7,13 @@ int main()
 {
     char *str;
     char *new;
+    int allocated;
+    printf("Enter size of stack (only vector): ");
+    if (input(&allocated))
+    {
+        printf("End\n");
+        return 0;
+    }
     do
     {
         printf("Enter formula to transform:\n");
@@ -16,7 +23,7 @@ int main()
             printf("Done\n");
             return 0;
         }
-        new = process(str);
+        new = process(str, allocated);
         free(str);
         if (!new)
             printf("Wrong format\n");

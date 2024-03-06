@@ -13,9 +13,10 @@ int input(int *X)
             return 1;
         if (*X < 0)
             printf("Can't be <0: ");
-        scanf("%*[^\n]");
+        // scanf("%*[^\n]");
         check = scanf("%d", X);
     }
+    scanf("%*c");
     return 0;
 }
 
