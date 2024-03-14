@@ -1,8 +1,7 @@
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-// #include "hfile_l.h"
-#include "hfile_v.h"
+#include "funcs.h"
+#include "lib.h"
 
 char *process(char *src, int allocated)
 {

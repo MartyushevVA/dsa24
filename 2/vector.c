@@ -1,7 +1,12 @@
-#include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#include "hfile_v.h"
+#include "lib.h"
+
+typedef struct Stack
+{
+    int top;
+    int allocated;
+    char **list;
+} Stack;
 
 int check(Stack *stack)
 {
@@ -11,7 +16,6 @@ int check(Stack *stack)
 void push(Stack *stack, char *elem)
 {
     stack->top++;
-    // stack->list = (char **)realloc(stack->list, (stack->top + 1) * sizeof(char *));
     (stack->list)[stack->top] = elem;
 }
 
@@ -19,8 +23,6 @@ char *pop(Stack *stack)
 {
     char *a = (stack->list)[stack->top];
     stack->top--;
-    /*if (stack->top > -1)
-        stack->list = (char **)realloc(stack->list, (stack->top + 1) * sizeof(char *));*/
     return a;
 }
 

@@ -1,7 +1,16 @@
-#include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#include "hfile_l.h"
+#include "lib.h"
+
+typedef struct Item
+{
+    char *term;
+    struct Item *next;
+} Item;
+
+typedef struct Stack
+{
+    Item *top;
+} Stack;
 
 int check(Stack *stack)
 {
@@ -52,7 +61,7 @@ void freeing(Stack *stack)
     free(stack);
 }
 
-Stack *init(int allocated)
+Stack *init(int _)
 {
     Stack *stack = (Stack *)malloc(sizeof(Stack));
     (*stack).top = NULL;

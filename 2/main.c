@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "hfile_v.h"
-// #include "hfile_l.h"
+#include "lib.h"
+#include "funcs.h"
 
 int main()
 {

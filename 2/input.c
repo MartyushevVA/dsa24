@@ -1,8 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "hfile_v.h"
-// #include "hfile_l.h"
+#include "funcs.h"
 
 int input(int *X)
 {
@@ -13,7 +12,6 @@ int input(int *X)
             return 1;
         if (*X < 0)
             printf("Can't be <0: ");
-        // scanf("%*[^\n]");
         check = scanf("%d", X);
     }
     scanf("%*c");
