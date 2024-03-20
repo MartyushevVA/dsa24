@@ -5,19 +5,6 @@
 
 /*Должны быть предусмотрены следующие операции: импорт данных из текстового файла;*/
 
-typedef struct KeySpace
-{
-    unsigned int key;
-    char *info;
-} KeySpace;
-
-typedef struct Table
-{
-    KeySpace *ks;
-    int msize;
-    int csize;
-} Table;
-
 Table *init(int size)
 {
     Table *table = (Table *)malloc(sizeof(Table));
@@ -41,7 +28,7 @@ int insert(Table *table, unsigned int key, char *info)
         i--;
     }
     table->ks[i + 1].key = key;
-    table->ks[i + 1].info = (char *)calloc(strlen(table->ks[i + 1].info) + 1, sizeof(char));
+    table->ks[i + 1].info = (char *)calloc(strlen(info) + 1, sizeof(char));
     strcpy(table->ks[i + 1].info, info);
     table->csize++;
     return 0;
@@ -88,24 +75,25 @@ void print(Table *table)
     }
 }
 
-Table *pfind(Table *table, unsigned int start, unsigned int end)
+int pfind(Table *table, Table *indiv, unsigned int start, unsigned int end)
 {
-    Table *new = (Table *)malloc(sizeof(Table));
-    new->msize = table->msize;
-    new->csize = 0;
-    new->ks = (KeySpace *)malloc(new->msize * sizeof(KeySpace));
+    for (int i = 0; i < indiv->csize; i++)
+        free(indiv->ks[i].info);
+    indiv->msize = table->msize;
+    indiv->csize = 0;
+    indiv->ks = (KeySpace *)realloc(indiv->ks, indiv->msize * sizeof(KeySpace));
     for (int i = 0; i < table->csize; i++)
     {
         unsigned int currkey = table->ks[i].key;
         if (currkey >= start && currkey <= end)
         {
-            new->ks[new->csize].key = currkey;
-            new->ks[new->csize].info = (char *)calloc(strlen(table->ks[i].info) + 1, sizeof(char));
-            strcpy(new->ks[new->csize].info, table->ks[i].info);
-            new->csize++;
+            indiv->ks[indiv->csize].key = currkey;
+            indiv->ks[indiv->csize].info = (char *)calloc(strlen(table->ks[i].info) + 1, sizeof(char));
+            strcpy(indiv->ks[indiv->csize].info, table->ks[i].info);
+            indiv->csize++;
         }
     }
-    return new;
+    return indiv->csize;
 }
 
 void deleting(Table *table)

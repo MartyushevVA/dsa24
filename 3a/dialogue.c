@@ -5,9 +5,9 @@
 
 int dialog()
 {
-    char *msgs[] = {"0. Quit\n", "1. Add\n", "2. Find\n", "3. Delete\n", "4. Personal Task\n", "5. Show\n"};
+    char *msgs[] = {"0. Quit\n", "1. Add\n", "2. Find\n", "3. Delete\n", "4. Personal Task\n", "5. Show(main)\n", "6. Show(indiv)\n"};
     char *errmsg = "";
-    int N = 6;
+    int N = 7;
     int rc;
     do
     {
@@ -23,7 +23,7 @@ int dialog()
     return rc;
 }
 
-int D_Add(Table *ptab)
+int D_Add(Table *ptab, Table *filler)
 {
     char *errmsgs[] = {"Ok", "Duplicate key", "Table overflow"};
     int k, rc, n;
@@ -42,7 +42,7 @@ int D_Add(Table *ptab)
     return 1;
 }
 
-int D_Find(Table *ptab)
+int D_Find(Table *ptab, Table *filler)
 {
     int k, n;
     KeySpace *rc;
@@ -59,7 +59,7 @@ int D_Find(Table *ptab)
     return 1;
 }
 
-int D_Delete(Table *ptab)
+int D_Delete(Table *ptab, Table *filler)
 {
     char *errmsgs[] = {"Ok", "Key wasn't found"};
     int k, rc, n;
@@ -73,15 +73,21 @@ int D_Delete(Table *ptab)
     return 1;
 }
 
-int D_Show(Table *ptab)
+int D_Show(Table *ptab, Table *filler)
 {
     print(ptab);
+    return 1;
 }
 
-int D_Personal_Task(Table *ptab)
+int D_Show2(Table *ptab, Table *indiv)
+{
+    print(indiv);
+    return 1;
+}
+
+int D_Personal_Task(Table *ptab, Table *indiv)
 {
     int f, s, n;
-    Table *rc;
     char *info = NULL;
     printf("Enter first key: ");
     n = input(&f);
@@ -91,8 +97,10 @@ int D_Personal_Task(Table *ptab)
     n = input(&s);
     if (n)
         return 0;
-    rc = pfind(ptab, (unsigned)f, (unsigned)s);
-    print(rc);
-    deleting(rc);
+    n = pfind(ptab, indiv, (unsigned)f, (unsigned)s);
+    if (n)
+        D_Show2(ptab, indiv);
+    else
+        printf("No valid keys\n");
     return 1;
 }
