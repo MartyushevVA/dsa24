@@ -10,6 +10,7 @@ int input(int *X)
     {
         if (check == EOF)
             return 1;
+        printf("Try again: ");
         check = scanf("%d", X);
     }
     scanf("%*c");

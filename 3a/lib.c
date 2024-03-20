@@ -3,8 +3,20 @@
 #include <string.h>
 #include "lib.h"
 
-/*Должны быть предусмотрены следующие операции:
-5. импорт данных из текстового файла;*/
+/*Должны быть предусмотрены следующие операции: импорт данных из текстового файла;*/
+
+typedef struct KeySpace
+{
+    unsigned int key;
+    char *info;
+} KeySpace;
+
+typedef struct Table
+{
+    KeySpace *ks;
+    int msize;
+    int csize;
+} Table;
 
 Table *init(int size)
 {
@@ -96,9 +108,10 @@ Table *pfind(Table *table, unsigned int start, unsigned int end)
     return new;
 }
 
-void deleting(Table* table)
+void deleting(Table *table)
 {
-    for (int i=0; i<table->csize; i++) free(table->ks[i].info);
+    for (int i = 0; i < table->csize; i++)
+        free(table->ks[i].info);
     free(table->ks);
     free(table);
 }

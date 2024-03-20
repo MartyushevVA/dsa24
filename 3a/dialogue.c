@@ -17,7 +17,7 @@ int dialog()
             printf(msgs[i]);
         printf("Choose: ");
         int n = input(&rc);
-        if (n == 1)
+        if (n)
             rc = 0;
     } while (rc < 0 || rc >= N);
     return rc;
@@ -30,7 +30,7 @@ int D_Add(Table *ptab)
     char *info = NULL;
     printf("Enter key: ");
     n = input(&k);
-    if (n == 0)
+    if (n)
         return 0;
     printf("Enter info: ");
     info = readline("");
@@ -45,15 +45,17 @@ int D_Add(Table *ptab)
 int D_Find(Table *ptab)
 {
     int k, n;
-    KeySpace* rc;
+    KeySpace *rc;
     char *info = NULL;
     printf("Enter key: ");
     n = input(&k);
-    if (n == 0)
+    if (n)
         return 0;
     rc = find(ptab, (unsigned)k);
-    if (rc) printf("Key: %u | Info: %s\n", rc->key, rc->info);
-    else printf("Doesn't exist\n");
+    if (rc)
+        printf("Key: %u | Info: %s\n", rc->key, rc->info);
+    else
+        printf("Doesn't exist\n");
     return 1;
 }
 
@@ -64,9 +66,9 @@ int D_Delete(Table *ptab)
     char *info = NULL;
     printf("Enter key: ");
     n = input(&k);
-    if (n == 0)
+    if (n)
         return 0;
-    rc = delete(ptab, (unsigned)k);
+    rc = delete (ptab, (unsigned)k);
     printf("%s: %d\n", errmsgs[rc], k);
     return 1;
 }
@@ -79,15 +81,15 @@ int D_Show(Table *ptab)
 int D_Personal_Task(Table *ptab)
 {
     int f, s, n;
-    Table* rc;
+    Table *rc;
     char *info = NULL;
     printf("Enter first key: ");
     n = input(&f);
-    if (n == 0)
+    if (n)
         return 0;
     printf("Enter second key: ");
     n = input(&s);
-    if (n == 0)
+    if (n)
         return 0;
     rc = pfind(ptab, (unsigned)f, (unsigned)s);
     print(rc);

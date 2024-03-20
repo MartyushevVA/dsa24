@@ -5,14 +5,19 @@
 
 int main()
 {
-    int option, n=0;
+    int (*fptr[])(Table *) = {NULL, D_Add, D_Find, D_Delete, D_Personal_Task, D_Show};
+    int option, size;
+    printf("Enter size of table: ");
     int n = input(&size);
-    //проверки
-    Table* table = init(size);
-    while(option = dialog()); // пока option = dialog не 0
+    if (n)
+        return 0;
+    Table *table = init(size);
+    while (option = dialog())
     {
-        // массив функций
-
+        if (!fptr[option](table))
+            break;
     }
+    printf("Done\n");
+    deleting(table);
     return 0;
 }
