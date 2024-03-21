@@ -14,92 +14,68 @@ Table *init(int size)
     return table;
 }
 
-int insert(Table *table, unsigned int key, char *info)
-{
-    if (table->csize == table->msize)
-        return 2; // переполнение
-    for (int i = 0; i < table->csize; i++)
-        if (table->ks[i].key == key)
-            return 1; // совпадение ключей
-    int i = table->csize - 1;
-    while (i >= 0 && table->ks[i].key > key)
-    {
-        table->ks[i + 1] = table->ks[i];
-        i--;
-    }
-    table->ks[i + 1].key = key;
-    table->ks[i + 1].info = (char *)calloc(strlen(info) + 1, sizeof(char));
-    strcpy(table->ks[i + 1].info, info);
-    table->csize++;
-    return 0;
-}
-
-int delete(Table *table, unsigned int key)
-{
-    int i = 0;
-    while (i < table->csize && table->ks[i].key != key)
-        i++;
-    if (i == table->csize)
-        return 1;
-    free(table->ks[i].info);
-    for (int j = i; j < table->csize - 1; j++)
-        table->ks[j] = table->ks[j + 1];
-    table->csize--;
-    return 0;
-}
-
-KeySpace *find(Table *table, unsigned int key)
-{
-    int low = 0;
-    int high = table->csize - 1;
-    while (low <= high)
-    {
-        int mid = low + (high - low) / 2;
-        if (table->ks[mid].key == key)
-            return &(table->ks[mid]);
-        else if (table->ks[mid].key < key)
-            low = mid + 1;
-        else
-            high = mid - 1;
-    }
-    return NULL;
-}
-
-void print(Table *table)
-{
-    for (int i = 0; i < table->csize; i++)
-    {
-        printf("Key: %u\n", table->ks[i].key);
-        printf("Info: %s\n", table->ks[i].info);
-        printf("--------------------\n");
-    }
-}
-
-int pfind(Table *table, Table *indiv, unsigned int start, unsigned int end)
-{
-    for (int i = 0; i < indiv->csize; i++)
-        free(indiv->ks[i].info);
-    indiv->msize = table->msize;
-    indiv->csize = 0;
-    indiv->ks = (KeySpace *)realloc(indiv->ks, indiv->msize * sizeof(KeySpace));
-    for (int i = 0; i < table->csize; i++)
-    {
-        unsigned int currkey = table->ks[i].key;
-        if (currkey >= start && currkey <= end)
-        {
-            indiv->ks[indiv->csize].key = currkey;
-            indiv->ks[indiv->csize].info = (char *)calloc(strlen(table->ks[i].info) + 1, sizeof(char));
-            strcpy(indiv->ks[indiv->csize].info, table->ks[i].info);
-            indiv->csize++;
-        }
-    }
-    return indiv->csize;
-}
-
-void deleting(Table *table)
+void clear(Table *table)
 {
     for (int i = 0; i < table->csize; i++)
         free(table->ks[i].info);
     free(table->ks);
     free(table);
+}
+
+int fullness(Table *table)
+{
+    return table->csize == table->msize;
+}
+
+int find(Table *table, unsigned int key)
+{
+    for (int i = 0; i < table->csize; i++)
+        if (table->ks[i].key == key)
+            return i;
+    return -1;
+}
+
+void inject(Table *table, unsigned int key, int pos, char *info)
+{
+    table->ks[pos].key = key;
+    table->ks[pos].info = (char *)calloc(strlen(info) + 1, sizeof(char));
+    strcpy(table->ks[pos].info, info);
+    table->csize++;
+}
+
+unsigned int get_key(Table *table, int pos)
+{
+    return table->ks[pos].key;
+}
+
+char *get_info(Table *table, int pos)
+{
+    return table->ks[pos].info;
+}
+
+int t_size(Table *table)
+{
+    return table->csize;
+}
+
+void move(Table *table, int des, int src)
+{
+    table->ks[des] = table->ks[src];
+}
+
+void resize(Table *table, int value)
+{
+    table->csize += (value);
+}
+
+KeySpace *get(Table *table, int pos)
+{
+    return &(table->ks[pos]);
+}
+
+void synch(Table *table, Table *indiv)
+{
+    indiv->msize = table->msize;
+    indiv->csize = 0;
+    indiv->ks = (KeySpace *)realloc(indiv->ks, indiv->msize * sizeof(KeySpace));
 }

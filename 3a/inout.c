@@ -3,6 +3,20 @@
 #include <string.h>
 #include "main.h"
 
+int u_input(unsigned int *X)
+{
+    int check = scanf("%u", X);
+    while (check != 1)
+    {
+        if (check == EOF)
+            return 1;
+        printf("Try again: ");
+        check = scanf("%u", X);
+    }
+    scanf("%*c");
+    return 0;
+}
+
 int input(int *X)
 {
     int check = scanf("%d", X);

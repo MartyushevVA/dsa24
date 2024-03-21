@@ -5,7 +5,7 @@
 
 int main()
 {
-    int (*fptr[])(Table *, Table *) = {NULL, D_Add, D_Find, D_Delete, D_Personal_Task, D_Show, D_Show2};
+    int (*fptr[])(Table *, Table *) = {NULL, D_Add, D_Find, D_Delete, D_Personal_Task, D_Show};
     int option, size;
     printf("Enter size of table: ");
     int n = input(&size);
@@ -19,7 +19,7 @@ int main()
             break;
     }
     printf("Done\n");
-    deleting(table);
-    deleting(temporal);
+    clear(table);
+    clear(temporal);
     return 0;
 }
