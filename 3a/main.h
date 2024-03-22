@@ -11,5 +11,7 @@ int D_Find(Table *, Table *);
 int D_Delete(Table *, Table *);
 int D_Show(Table *, Table *);
 int D_Personal_Task(Table *, Table *);
+int D_Import(Table *, Table *);
+int D_Export(Table *, Table *);
 
 #endif

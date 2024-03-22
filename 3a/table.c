@@ -36,13 +36,11 @@ int L_Delete(Table *table, unsigned int key)
     return 0;
 }
 
-KeySpace* L_Find(Table *table, unsigned int key)
+KeySpace *L_Find(Table *table, unsigned int key)
 {
     for (int i = 0; i < t_size(table); i++)
-    {
         if (get_key(table, i) == key)
             return get(table, i);
-    }
     return NULL;
 }
 
@@ -55,9 +53,7 @@ int L_PTask(Table *table, Table *indiv, unsigned int start, unsigned int end)
     {
         unsigned int currkey = get_key(table, i);
         if (currkey >= start && currkey <= end)
-        {
             inject(indiv, currkey, indiv->csize, get_info(table, i));
-        }
     }
     return t_size(indiv);
 }
@@ -71,5 +67,61 @@ int L_Print(Table *table)
         printf("Info: %s\n", get_info(table, i));
         printf("--------------------\n");
     }
-    return table->csize % 2;
+    return table->csize;
+}
+
+unsigned int stoui(char *str)
+{
+    unsigned int num = 0;
+    int i = 0;
+    while (str[i] != '\0' && '0' <= str[i] <= '9')
+    {
+        num = num * 10 + (str[i] - '0');
+        i++;
+    }
+    return num;
+}
+
+int L_Import(Table *table, char *fname)
+{
+    FILE *file = fopen(fname, "r");
+    free(fname);
+    char *s = (char *)malloc(1024 * sizeof(char));
+    char *info;
+    unsigned int key;
+    while (fscanf(file, "%s", s) == 1 && !fullness(table))
+    {
+        char *token = strtok(s, "^");
+        if (token != NULL)
+        {
+            key = stoui(token);
+            token = strtok(NULL, "^");
+            if (token != NULL)
+                inject(table, key, t_size(table), token);
+        }
+    }
+    free(s);
+    fclose(file);
+    return 0;
+}
+
+char *spacetounder(char *str)
+{
+    int i = 0;
+    while (str[i++])
+        if (str[i] == ' ')
+            str[i] += ('_' - ' ');
+    return str;
+}
+
+int L_Export(Table *table, char *fname)
+{
+    FILE *file = fopen(fname, "w");
+    free(fname);
+    if (!t_size(table))
+        return 1;
+    for (int i = 0; i < t_size(table); i++)
+        fprintf(file, "%u^%s ", get_key(table, i), spacetounder(get_info(table, i)));
+    fclose(file);
+    return 0;
 }

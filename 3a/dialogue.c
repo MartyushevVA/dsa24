@@ -1,13 +1,14 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "main.h"
 #include "logic.h"
 
 int dialog()
 {
-    char *msgs[] = {"0. Quit\n", "1. Add\n", "2. Find\n", "3. Delete\n", "4. Personal Task\n", "5. Show\n"};
+    char *msgs[] = {"0. Quit\n", "1. Add\n", "2. Find\n", "3. Delete\n", "4. Personal Task\n", "5. Show\n", "6. Import\n", "7. Export\n"};
     char *errmsg = "";
-    int N = 6;
+    int N = 8;
     int rc;
     do
     {
@@ -107,5 +108,47 @@ int D_Personal_Task(Table *ptab, Table *indiv)
         L_Print(indiv);
     else
         printf("No valid keys\n");
+    return 1;
+}
+
+int D_Import(Table *ptab, Table *_)
+{
+    char *errmsgs[] = {"Download", "Nothing to import"};
+    char *fname = NULL;
+    int check = 0;
+    int n;
+    do
+    {
+        printf("Enter .txt file name: ");
+        fname = readline("");
+        if (fname == NULL)
+            return 0;
+        int size = (int)strlen(fname);
+        if ((int)strlen(fname) > 3)
+            check = (fname[size - 4] == '.' && fname[size - 3] == 't' && fname[size - 2] == 'x' && fname[size - 1] == 't');
+    } while (!check);
+    n = L_Import(ptab, fname);
+    printf("%s\n", errmsgs[n]);
+    return 1;
+}
+
+int D_Export(Table *ptab, Table *_)
+{
+    char *errmsgs[] = {"Upload", "Nothing to export"};
+    char *fname = NULL;
+    int check = 0;
+    int n;
+    do
+    {
+        printf("Enter .txt file name: ");
+        fname = readline("");
+        if (fname == NULL)
+            return 0;
+        int size = (int)strlen(fname);
+        if ((int)strlen(fname) > 3)
+            check = (fname[size - 4] == '.' && fname[size - 3] == 't' && fname[size - 2] == 'x' && fname[size - 1] == 't');
+    } while (!check);
+    n = L_Export(ptab, fname);
+    printf("%s\n", errmsgs[n]);
     return 1;
 }
