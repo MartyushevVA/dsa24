@@ -4,8 +4,6 @@
 #include "lib.h"
 #include "logic.h"
 
-/*Должны быть предусмотрены следующие операции: импорт данных из текстового файла;*/
-
 int L_Insert(Table *table, unsigned int key, char *info)
 {
     if (find(table, key) != -1)
@@ -89,6 +87,7 @@ int L_Import(Table *table, char *fname)
     char *s = (char *)malloc(1024 * sizeof(char));
     char *info;
     unsigned int key;
+    preparing(table);
     while (fscanf(file, "%s", s) == 1 && !fullness(table))
     {
         char *token = strtok(s, "^");

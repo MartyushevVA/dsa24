@@ -3,8 +3,6 @@
 #include <string.h>
 #include "lib.h"
 
-/*Должны быть предусмотрены следующие операции: импорт данных из текстового файла;*/
-
 Table *init(int size)
 {
     Table *table = (Table *)malloc(sizeof(Table));
@@ -20,6 +18,13 @@ void clear(Table *table)
         free(table->ks[i].info);
     free(table->ks);
     free(table);
+}
+
+void preparing(Table *table)
+{
+    for (int i = 0; i < table->csize; i++)
+        free(table->ks[i].info);
+    table->csize = 0;
 }
 
 int fullness(Table *table)

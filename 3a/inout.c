@@ -5,14 +5,18 @@
 
 int u_input(unsigned int *X)
 {
-    int check = scanf("%u", X);
-    while (check != 1)
+    int temp;
+    int check = scanf("%d", &temp);
+    while (check != 1 || temp < 0)
     {
         if (check == EOF)
             return 1;
+        if (temp < 0)
+            printf("Must be >0. ");
         printf("Try again: ");
-        check = scanf("%u", X);
+        check = scanf("%d", &temp);
     }
+    *X = (unsigned)temp;
     scanf("%*c");
     return 0;
 }

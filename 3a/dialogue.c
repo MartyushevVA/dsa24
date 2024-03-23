@@ -30,7 +30,7 @@ int D_Add(Table *ptab, Table *_)
     int k, rc, n;
     char *info = NULL;
     printf("Enter key: ");
-    n = input(&k);
+    n = u_input(&k);
     if (n)
         return 0;
     printf("Enter info: ");
@@ -49,7 +49,7 @@ int D_Find(Table *ptab, Table *_)
     KeySpace *rc;
     char *info = NULL;
     printf("Enter key: ");
-    n = input(&k);
+    n = u_input(&k);
     if (n)
         return 0;
     rc = L_Find(ptab, (unsigned)k);
@@ -66,7 +66,7 @@ int D_Delete(Table *ptab, Table *_)
     int k, rc, n;
     char *info = NULL;
     printf("Enter key: ");
-    n = input(&k);
+    n = u_input(&k);
     if (n)
         return 0;
     rc = L_Delete(ptab, (unsigned)k);
@@ -79,7 +79,7 @@ int D_Show(Table *ptab, Table *indiv)
     printf("Choose table: \n1. Main \n2. Additional \n");
     int k = 0;
     Table *matrs[] = {ptab, indiv};
-    int n = input(&k);
+    int n = u_input(&k);
     if (n)
         return 0;
     if (k < 1 || k > 2)

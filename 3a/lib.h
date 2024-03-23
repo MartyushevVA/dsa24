@@ -26,5 +26,6 @@ KeySpace *get(Table *, int);
 void synch(Table *, Table *);
 int fullness(Table *);
 int find(Table *, unsigned int);
+void preparing(Table *);
 
 #endif
