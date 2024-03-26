@@ -7,9 +7,9 @@
 int L_Insert(Table *table, unsigned int key, char *info)
 {
     if (find(table, key) != -1)
-        return 1; // совпадение ключей
+        return 1;
     if (fullness(table))
-        return 2; // переполнение
+        return 2;
     int i = t_size(table) - 1;
     while (i >= 0 && get_key(table, i) > key)
     {
@@ -72,7 +72,7 @@ unsigned int stoui(char *str)
 {
     unsigned int num = 0;
     int i = 0;
-    while (str[i] != '\0' && '0' <= str[i] <= '9')
+    while (str[i] != '\0' && '0' <= str[i] && str[i] <= '9')
     {
         num = num * 10 + (str[i] - '0');
         i++;
@@ -80,27 +80,42 @@ unsigned int stoui(char *str)
     return num;
 }
 
+int dig(unsigned int num)
+{
+    if (!num)
+        return 1;
+    int i = 1;
+    while (num /= 10)
+        i++;
+    return i;
+}
+
 int L_Import(Table *table, char *fname)
 {
     FILE *file = fopen(fname, "r");
     free(fname);
+    if (file == NULL)
+        return 1;
     char *s = (char *)malloc(1024 * sizeof(char));
-    char *info;
-    unsigned int key;
-    preparing(table);
+    unsigned int key = 0;
     while (fscanf(file, "%s", s) == 1 && !fullness(table))
     {
         char *token = strtok(s, "^");
         if (token != NULL)
         {
             key = stoui(token);
+            if (dig(key) != (int)strlen(token))
+                continue;
             token = strtok(NULL, "^");
             if (token != NULL)
-                inject(table, key, t_size(table), token);
+                if (find(table, key) == -1)
+                    inject(table, key, t_size(table), token);
         }
     }
     free(s);
     fclose(file);
+    if (!t_size(table))
+        return 2;
     return 0;
 }
 

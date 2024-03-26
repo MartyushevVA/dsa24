@@ -27,7 +27,8 @@ int dialog()
 int D_Add(Table *ptab, Table *_)
 {
     char *errmsgs[] = {"Ok", "Duplicate key", "Table overflow"};
-    int k, rc, n;
+    unsigned int k;
+    int rc, n;
     char *info = NULL;
     printf("Enter key: ");
     n = u_input(&k);
@@ -45,9 +46,9 @@ int D_Add(Table *ptab, Table *_)
 
 int D_Find(Table *ptab, Table *_)
 {
-    int k, n;
+    unsigned int k;
+    int n;
     KeySpace *rc;
-    char *info = NULL;
     printf("Enter key: ");
     n = u_input(&k);
     if (n)
@@ -63,8 +64,8 @@ int D_Find(Table *ptab, Table *_)
 int D_Delete(Table *ptab, Table *_)
 {
     char *errmsgs[] = {"Ok", "Key wasn't found"};
-    int k, rc, n;
-    char *info = NULL;
+    unsigned int k;
+    int rc, n;
     printf("Enter key: ");
     n = u_input(&k);
     if (n)
@@ -79,7 +80,7 @@ int D_Show(Table *ptab, Table *indiv)
     printf("Choose table: \n1. Main \n2. Additional \n");
     int k = 0;
     Table *matrs[] = {ptab, indiv};
-    int n = u_input(&k);
+    int n = input(&k);
     if (n)
         return 0;
     if (k < 1 || k > 2)
@@ -94,7 +95,6 @@ int D_Personal_Task(Table *ptab, Table *indiv)
 {
     unsigned int f, s;
     int n;
-    char *info = NULL;
     printf("Enter first key: ");
     n = u_input(&f);
     if (n)
@@ -113,7 +113,7 @@ int D_Personal_Task(Table *ptab, Table *indiv)
 
 int D_Import(Table *ptab, Table *_)
 {
-    char *errmsgs[] = {"Download", "Nothing to import"};
+    char *errmsgs[] = {"Download", "File doesn't exist", "File empty"};
     char *fname = NULL;
     int check = 0;
     int n;
