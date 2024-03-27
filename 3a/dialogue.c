@@ -113,7 +113,7 @@ int D_Personal_Task(Table *ptab, Table *indiv)
 
 int D_Import(Table *ptab, Table *_)
 {
-    char *errmsgs[] = {"Download", "File doesn't exist", "File empty"};
+    char *errmsgs[] = {"Loaded", "File doesn't exist", "File empty", "Table overflow"};
     char *fname = NULL;
     int check = 0;
     int n;
@@ -134,7 +134,7 @@ int D_Import(Table *ptab, Table *_)
 
 int D_Export(Table *ptab, Table *_)
 {
-    char *errmsgs[] = {"Upload", "Nothing to export"};
+    char *errmsgs[] = {"Uploaded", "Nothing to export"};
     char *fname = NULL;
     int check = 0;
     int n;

@@ -98,8 +98,14 @@ int L_Import(Table *table, char *fname)
         return 1;
     char *s = (char *)malloc(1024 * sizeof(char));
     unsigned int key = 0;
-    while (fscanf(file, "%s", s) == 1 && !fullness(table))
+    int isfull = 0;
+    while (fscanf(file, "%s", s) == 1)
     {
+        if (fullness(table))
+        {
+            isfull = 1;
+            break;
+        }
         char *token = strtok(s, "^");
         if (token != NULL)
         {
@@ -114,6 +120,8 @@ int L_Import(Table *table, char *fname)
     }
     free(s);
     fclose(file);
+    if (isfull)
+        return 3;
     if (!t_size(table))
         return 2;
     return 0;
