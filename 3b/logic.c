@@ -1,13 +1,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 #include "lib.h"
 #include "logic.h"
+#include "iter.h"
 
 int is_prime(int a)
 {
-    for (int i = 2; i <= n / 2; i++)
-        if (n % i == 0)
+    for (int i = 2; i <= a / 2; i++)
+        if (a % i == 0)
             return 0;
     return 1;
 }
@@ -26,7 +28,8 @@ int get_hash(unsigned int key, int size)
     int hash = 0;
     for (int i = 3; i >= 0; i--)
     {
-        bytes[i] = key % pow(2, 8);
+        bytes[i] = key % (int)pow(2, 8);
+        void clear(Table *);
         key /= pow(2, 8);
     }
     for (int i = 0; i < 4; i++)
@@ -34,7 +37,7 @@ int get_hash(unsigned int key, int size)
     return abs(hash) % size;
 }
 
-int quick_resize(Table *table)
+/*int quick_resize(Table *table)
 {
     if (fullness(table))
     {
@@ -42,7 +45,7 @@ int quick_resize(Table *table)
         return 1;
     }
     return 0;
-}
+}*/
 
 int get_last_release(Table *table, unsigned int key)
 {
@@ -51,10 +54,10 @@ int get_last_release(Table *table, unsigned int key)
         return 0;
     Iterator it = begin(table, hash);
     int last = 0;
-    while (it)
+    while (stuff(it))
     {
-        if (it_key(it) == key)
-            last = it_release(it);
+        if (get_key(stuff(it)) == key)
+            last = fmax(get_release(stuff(it)), last);
         it = next(it);
     }
     return last;
@@ -63,8 +66,8 @@ int get_last_release(Table *table, unsigned int key)
 int L_Insert(Table *table, unsigned int key, unsigned int info)
 {
     int ntf = 0;
-    if (quick_resize(table))
-        ntf += 2;
+    /*if (quick_resize(table))
+        ntf += 2;*/
     int hash = get_hash(key, m_size(table));
     if (get_master(table, hash))
     {
@@ -80,123 +83,70 @@ int L_Delete(Table *table, unsigned int key)
 {
     int ntf = 0;
     int hash = get_hash(key, m_size(table));
-    if (!branch_size(table, hash))
-        return 1;
+    int lr = get_last_release(table, key);
     Iterator it = begin(table, hash);
     Iterator prev = begin(table, hash);
-    while(get_last_release(table, key))
+    while (stuff(it))
+    {
+        if (get_release(stuff(it)) == get_last_release(table, key) && get_key(stuff(it)) == key)
+        {
+            if (get_master(table, hash) == stuff(it))
+                delete_root(table, hash);
+            else
+                delete_elem(stuff(prev), stuff(it));
+            return 0;
+        }
+        prev = it;
+        it = next(it);
+    }
+    return 1;
 }
 
-KeySpace *L_Find(Table *table, unsigned int key)
+KeySpace *L_Find(Table *table, unsigned int key, int *size)
 {
-    KeySpace *res = (KeySpace *)malloc(sizeof(KeySpace));
-    int size = 0;
+    KeySpace *res = (KeySpace *)calloc(1, sizeof(KeySpace));
     int hash = get_hash(key, m_size(table));
-    if (get_master(table, hash))
+    Iterator it = begin(table, hash);
+    for (int i = 0; i < branch_size(table, hash); i++)
     {
-        for (Iterator it = begin(table, hash); it_next(it); next(it))
+        if (get_key(stuff(it)) == key)
         {
-            if (it_key(it) == key)
-            {
-                copying(it.ptr, res[size]);
-                size++;
-                res = (KeySpace *)realloc(res, (size + 1) * sizeof(KeySpace));
-            }
+            copying(stuff(it), &res[*size]);
+            *size++;
+            res = (KeySpace *)realloc(res, (*size + 1) * sizeof(KeySpace));
         }
-        return res;
+        it = next(it);
     }
-    free(res);
-    return NULL;
+    return res;
 }
 
 int L_Print(Table *table)
 {
-    for (int i = 0; i < t_size(table); i++)
+    for (int i = 0; i < m_size(table); i++)
     {
-        printf("--------------------\n");
-        printf("Key: %u\n", get_key(table, i));
-        printf("Info: %s\n", get_info(table, i));
-        printf("--------------------\n");
+        if (!get_master(table, i))
+            continue;
+        for (int j = 0; j < branch_size(table, i); j++)
+        {
+            printf("--------------------\n");
+            printf("Key: %u\n", get_key(get_n_elem(table, i, j)));
+            printf("Info: %u\n", get_info(get_n_elem(table, i, j)));
+            printf("Release: %i\n", get_release(get_n_elem(table, i, j)));
+            printf("--------------------\n");
+        }
+        printf("++++++++++++++++++++\n");
     }
     return table->csize;
 }
 
-unsigned int stoui(char *str)
+void print(KeySpace *mas, int size)
 {
-    unsigned int num = 0;
-    int i = 0;
-    while (str[i] != '\0' && '0' <= str[i] && str[i] <= '9')
+    for (int i=0; i<size; i++)
     {
-        num = num * 10 + (str[i] - '0');
-        i++;
+        printf("--------------------\n");
+        printf("Key: %u\n", get_key(&mas[i]));
+        printf("Info: %u\n", get_info(&mas[i]));
+        printf("Release: %i\n", get_release(&mas[i]));
+        printf("--------------------\n");
     }
-    return num;
-}
-
-int dig(unsigned int num)
-{
-    if (!num)
-        return 1;
-    int i = 1;
-    while (num /= 10)
-        i++;
-    return i;
-}
-
-int L_Import(Table *table, char *fname)
-{
-    FILE *file = fopen(fname, "r");
-    free(fname);
-    if (file == NULL)
-        return 1;
-    char *s = (char *)malloc(1024 * sizeof(char));
-    unsigned int key = 0;
-    int isfull = 0;
-    while (fscanf(file, "%s", s) == 1)
-    {
-        if (fullness(table))
-        {
-            isfull = 1;
-            break;
-        }
-        char *token = strtok(s, "^");
-        if (token != NULL)
-        {
-            key = stoui(token);
-            if (dig(key) != (int)strlen(token))
-                continue;
-            token = strtok(NULL, "^");
-            if (token != NULL)
-                if (find(table, key) == -1)
-                    inject(table, key, t_size(table), token);
-        }
-    }
-    free(s);
-    fclose(file);
-    if (isfull)
-        return 3;
-    if (!t_size(table))
-        return 2;
-    return 0;
-}
-
-char *spacetounder(char *str)
-{
-    int i = 0;
-    while (str[i++])
-        if (str[i] == ' ')
-            str[i] += ('_' - ' ');
-    return str;
-}
-
-int L_Export(Table *table, char *fname)
-{
-    FILE *file = fopen(fname, "w");
-    free(fname);
-    if (!t_size(table))
-        return 1;
-    for (int i = 0; i < t_size(table); i++)
-        fprintf(file, "%u^%s ", get_key(table, i), spacetounder(get_info(table, i)));
-    fclose(file);
-    return 0;
 }
