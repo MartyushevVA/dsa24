@@ -57,85 +57,96 @@ int D_Delete(Table *ptab)
 }
 
 int D_Find(Table *ptab)
-{ /*
-     unsigned int k;
-     int n;
-     KeySpace *rc;
-     int size = 0;
-     printf("Enter key: ");
-     n = u_input(&k);
-     if (n)
-         return 0;
-     rc = L_Find(ptab, k, &size);
-     if (size)
-         print(rc, size);
-     else
-         printf("Doesn't exist\n");
-     return 1;*/
+{
+    unsigned int k;
+    int n;
+    KeySpace *rc;
+    int size = 0;
+    printf("Enter key: ");
+    n = u_input(&k);
+    if (n)
+        return 0;
+    rc = L_Find(ptab, k, &size);
+    if (size)
+        print(rc, size);
+    else
+        printf("Doesn't exist\n");
+    return 1;
 }
 
 int D_Show(Table *ptab)
-{ /*
-     printf("Choose table: \n1. Main \n2. Additional \n");
-     int k = 0;
-     Table *matrs[] = {ptab, indiv};
-     int n = input(&k);
-     if (n)
-         return 0;
-     if (k < 1 || k > 2)
-         return 1;
-     int rc = L_Print(matrs[k - 1]);
-     if (!rc)
-         printf("Table is empty\n");
-     return 1;*/
+{
+    int rc = L_Print(ptab);
+    if (!rc)
+        printf("Table is empty\n");
+    return 1;
 }
 
 int D_Import(Table *ptab)
-{ /*
-     char *errmsgs[] = {"Loaded", "File doesn't exist", "File empty", "Table overflow"};
-     char *fname = NULL;
-     int check = 0;
-     int n;
-     do
-     {
-         printf("Enter .txt file name: ");
-         fname = readline("");
-         if (fname == NULL)
-             return 0;
-         int size = (int)strlen(fname);
-         if ((int)strlen(fname) > 3)
-             check = (fname[size - 4] == '.' && fname[size - 3] == 't' && fname[size - 2] == 'x' && fname[size - 1] == 't');
-     } while (!check);
-     n = L_Import(ptab, fname);
-     printf("%s\n", errmsgs[n]);
-     return 1;*/
+{
+    char *errmsgs[] = {"Loaded", "File doesn't exist", "File empty"};
+    char *fname = NULL;
+    int check = 0;
+    int n;
+    do
+    {
+        printf("Enter .bin file name: ");
+        fname = readline("");
+        if (fname == NULL)
+            return 0;
+        int size = (int)strlen(fname);
+        if ((int)strlen(fname) > 3)
+            check = (fname[size - 4] == '.' && fname[size - 3] == 'b' && fname[size - 2] == 'i' && fname[size - 1] == 'n');
+    } while (!check);
+    n = L_Import(ptab, fname);
+    printf("%s\n", errmsgs[n]);
+    return 1;
 }
 
 int D_Export(Table *ptab)
-{ /*
-     char *errmsgs[] = {"Uploaded", "Nothing to export"};
-     char *fname = NULL;
-     int check = 0;
-     int n;
-     do
-     {
-         printf("Enter .txt file name: ");
-         fname = readline("");
-         if (fname == NULL)
-             return 0;
-         int size = (int)strlen(fname);
-         if ((int)strlen(fname) > 3)
-             check = (fname[size - 4] == '.' && fname[size - 3] == 't' && fname[size - 2] == 'x' && fname[size - 1] == 't');
-     } while (!check);
-     n = L_Export(ptab, fname);
-     printf("%s\n", errmsgs[n]);
-     return 1;*/
+{
+    char *errmsgs[] = {"Uploaded", "Nothing to export"};
+    char *fname = NULL;
+    int check = 0;
+    int n;
+    do
+    {
+        printf("Enter .bin file name: ");
+        fname = readline("");
+        if (fname == NULL)
+            return 0;
+        int size = (int)strlen(fname);
+        if ((int)strlen(fname) > 3)
+            check = (fname[size - 4] == '.' && fname[size - 3] == 'b' && fname[size - 2] == 'i' && fname[size - 1] == 'n');
+    } while (!check);
+    n = L_Export(ptab, fname);
+    printf("%s\n", errmsgs[n]);
+    return 1;
 }
 
 int D_Large_Finding(Table *ptab)
 {
+    unsigned int k;
+    int n;
+    KeySpace *rc;
+    int size = 0;
+    unsigned int release = 0;
+    printf("Enter key: ");
+    n = u_input(&k);
+    if (n)
+        return 0;
+    printf("Enter release (0 if all versions): ");
+    n = u_input(&release);
+    if (n)
+        return 0;
+    rc = L_Large_Finding(ptab, k, &size, release);
+    if (!size)
+        printf("Doesn't exist\n");
+    return 1;
 }
 
 int D_Refresh(Table *ptab)
 {
+    L_Refresh(ptab);
+    return 1;
 }

@@ -59,7 +59,7 @@ KeySpace *new_elem(unsigned int key, int release, unsigned int info)
 void inject_to_master(Table *table, KeySpace *item, int position)
 {
     table->ks[position] = item;
-    table->csize++;
+    (table->csize)++;
 }
 
 void inject_to_branch(Table *table, KeySpace *item, int position)
@@ -68,7 +68,7 @@ void inject_to_branch(Table *table, KeySpace *item, int position)
     while (ptr->next)
         ptr = ptr->next;
     ptr->next = item;
-    table->csize++;
+    (table->csize)++;
 }
 
 void delete_root(Table *table, int hash)

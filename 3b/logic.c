@@ -37,15 +37,17 @@ int get_hash(unsigned int key, int size)
     return abs(hash) % size;
 }
 
-/*int quick_resize(Table *table)
+int quick_resize(Table *table)
 {
     if (fullness(table))
     {
         set_size(table, calculating(m_size(table)));
         return 1;
+        // изменяется хэш-функция, т. е. нужно пересобирать таблицу
+        // по-новому, но хз
     }
     return 0;
-}*/
+}
 
 int get_last_release(Table *table, unsigned int key)
 {
@@ -66,8 +68,8 @@ int get_last_release(Table *table, unsigned int key)
 int L_Insert(Table *table, unsigned int key, unsigned int info)
 {
     int ntf = 0;
-    /*if (quick_resize(table))
-        ntf += 2;*/
+    if (quick_resize(table))
+        ntf += 2;
     int hash = get_hash(key, m_size(table));
     if (get_master(table, hash))
     {
@@ -112,7 +114,7 @@ KeySpace *L_Find(Table *table, unsigned int key, int *size)
         if (get_key(stuff(it)) == key)
         {
             copying(stuff(it), &res[*size]);
-            *size++;
+            (*size)++;
             res = (KeySpace *)realloc(res, (*size + 1) * sizeof(KeySpace));
         }
         it = next(it);
@@ -141,7 +143,7 @@ int L_Print(Table *table)
 
 void print(KeySpace *mas, int size)
 {
-    for (int i=0; i<size; i++)
+    for (int i = 0; i < size; i++)
     {
         printf("--------------------\n");
         printf("Key: %u\n", get_key(&mas[i]));
@@ -149,4 +151,85 @@ void print(KeySpace *mas, int size)
         printf("Release: %i\n", get_release(&mas[i]));
         printf("--------------------\n");
     }
+}
+
+int L_Refresh(Table *table)
+{
+    Iterator it, prev;
+    int lr;
+    for (int i = 0; i < m_size(table); i++)
+    {
+        it = begin(table, i);
+        prev = begin(table, i);
+        for (int j = 0; j < branch_size(table, i); j++)
+        {
+            lr = get_last_release(table, get_key(stuff(it)));
+            if (get_release(stuff(it)) != get_last_release(table, get_key(stuff(it))) && get_key(stuff(it)) == get_key(stuff(it)))
+            {
+                if (get_master(table, i) == stuff(it))
+                    delete_root(table, i);
+                else
+                    delete_elem(stuff(prev), stuff(it));
+            }
+            prev = it;
+            it = next(it);
+        }
+    }
+    return 1;
+}
+
+KeySpace *L_Large_Finding(Table *table, unsigned int key, int *size, unsigned int release)
+{
+    KeySpace *res = (KeySpace *)calloc(1, sizeof(KeySpace));
+    int hash = get_hash(key, m_size(table));
+    Iterator it = begin(table, hash);
+    for (int i = 0; i < branch_size(table, hash); i++)
+    {
+        if ((get_key(stuff(it)) == key) && ((!release) || release == get_release(stuff(it))))
+        {
+            copying(stuff(it), &res[*size]);
+            (*size)++;
+            res = (KeySpace *)realloc(res, (*size + 1) * sizeof(KeySpace));
+        }
+        it = next(it);
+    }
+    return res;
+}
+
+int L_Import(Table *table, char *fname)
+{
+    FILE *file = fopen(fname, "rb");
+    free(fname);
+    if (file == NULL)
+        return 1;
+    unsigned int s[2];
+    while (fread(s, sizeof(unsigned int), 2, file))
+        L_Insert(table, s[0], s[1]);
+    fclose(file);
+    if (!c_size(table))
+        return 2;
+    return 0;
+}
+
+int L_Export(Table *table, char *fname)
+{
+    FILE *file = fopen(fname, "wb");
+    free(fname);
+    if (!c_size(table))
+        return 1;
+    unsigned int s[2];
+    Iterator it;
+    for (int i = 0; i < m_size(table); i++)
+    {
+        it = begin(table, i);
+        for (int j = 0; j < branch_size(table, i); j++)
+        {
+            s[0] = get_key(stuff(it));
+            s[1] = get_info(stuff(it));
+            fwrite(s, sizeof(unsigned int), 2, file);
+            it = next(it);
+        }
+    }
+    fclose(file);
+    return 0;
 }
