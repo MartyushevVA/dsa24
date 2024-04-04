@@ -5,8 +5,9 @@
 
 int u_input(unsigned int *X)
 {
-    int temp;
+    int temp = 0;
     int check = scanf("%d", &temp);
+    scanf("%*c");
     while (check != 1 || temp < 0)
     {
         if (check == EOF)
@@ -15,25 +16,27 @@ int u_input(unsigned int *X)
             printf("Must be >0. ");
         printf("Try again: ");
         check = scanf("%d", &temp);
+        scanf("%*c");
     }
     *X = (unsigned)temp;
-    scanf("%*c");
     return 0;
 }
 
 int input(int *X)
 {
+    *X = 0;
     int check = scanf("%d", X);
-    while (check != 1 || X < 0)
+    scanf("%*c");
+    while (check != 1 || *X < 0)
     {
         if (check == EOF)
             return 1;
-        if (X < 0)
+        if (*X < 0)
             printf("Must be >0. ");
         printf("Try again: ");
         check = scanf("%d", X);
+        scanf("%*c");
     }
-    scanf("%*c");
     return 0;
 }
 

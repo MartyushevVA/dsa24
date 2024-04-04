@@ -5,6 +5,7 @@
 int input(int *);
 int u_input(unsigned int *);
 char *readline(char *);
+
 int dialog();
 int D_Add(Table *);
 int D_Delete(Table *);
