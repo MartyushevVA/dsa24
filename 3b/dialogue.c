@@ -60,16 +60,12 @@ int D_Find(Table *ptab)
 {
     unsigned int k;
     int n;
-    KeySpace *arr;
-    int size = 0;
     printf("Enter key: ");
     n = u_input(&k);
     if (n)
         return 0;
-    arr = L_Find(ptab, k, &size, 0);
-    if (size)
-        print_arr(arr, size);
-    else
+    n = L_Find(ptab, k, 0);
+    if (!n)
         printf("Doesn't exist\n");
     return 1;
 }
@@ -90,6 +86,8 @@ int D_Import(Table *ptab)
     int n;
     do
     {
+        if (fname)
+            free(fname);
         printf("Enter .bin file name: ");
         fname = readline("");
         if (fname == NULL)
@@ -111,6 +109,8 @@ int D_Export(Table *ptab)
     int n;
     do
     {
+        if (fname)
+            free(fname);
         printf("Enter .bin file name: ");
         fname = readline("");
         if (fname == NULL)
@@ -128,8 +128,6 @@ int D_Large_Finding(Table *ptab)
 {
     unsigned int k;
     int n;
-    KeySpace *arr;
-    int size = 0;
     unsigned int release = 0;
     printf("Enter key: ");
     n = u_input(&k);
@@ -139,10 +137,8 @@ int D_Large_Finding(Table *ptab)
     n = u_input(&release);
     if (n)
         return 0;
-    arr = L_Find(ptab, k, &size, release);
-    if (size)
-        print_arr(arr, size);
-    else
+    n = L_Find(ptab, k, release);
+    if (!n)
         printf("Doesn't exist\n");
     return 1;
 }

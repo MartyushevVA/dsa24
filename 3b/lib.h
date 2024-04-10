@@ -18,16 +18,16 @@ typedef struct Table
 
 Table *init(int);
 void clear(Table *);
+void prepare(Table *);
 
-int insert(Table *, unsigned int, unsigned int, int);
-int remove(Table *, unsigned int);
-int find(Table *, unsigned int, KeySpace **, int);
+int insert(Table *, unsigned int, unsigned int);
+int delete(Table *, unsigned int);
+KeySpace *find(Table *, unsigned int, int, int *);
 int print(Table *);
 int export(Table *, FILE *);
 int refresh(Table *);
 
-//int smart_resize(Table *);
-int get_last_release(Table *, unsigned int);
+int smart_resize(Table *);
 int is_empty(Table *);
 
 #endif

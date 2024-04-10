@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "main.h"
-#include "lib.h"
 
 int main()
 {
@@ -11,10 +10,19 @@ int main()
     int n = input(&size);
     if (n)
         return 0;
+    if (!size)
+    {
+        printf("Empty table\n");
+        return 0;
+    }
     Table *table = init(size);
-    while (option = dialog())
+    option = dialog();
+    while (option)
+    {
         if (!fptr[option](table))
             break;
+        option = dialog();
+    }
     printf("Done\n");
     clear(table);
     return 0;
