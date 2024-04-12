@@ -16,13 +16,20 @@ typedef struct Table
     int csize;
 } Table;
 
+typedef struct Elem
+{
+    unsigned int key;
+    int release;
+    unsigned int info;
+} Elem;
+
 Table *init(int);
 void clear(Table *);
 void prepare(Table *);
 
 int insert(Table *, unsigned int, unsigned int);
 int delete(Table *, unsigned int);
-KeySpace *find(Table *, unsigned int, int, int *);
+Elem *find(Table *, unsigned int, int, int *);
 int print(Table *);
 int export(Table *, FILE *);
 int refresh(Table *);

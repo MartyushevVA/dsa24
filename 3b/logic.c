@@ -12,15 +12,15 @@ int L_Insert(Table *table, unsigned int key, unsigned int info)
 
 int L_Delete(Table *table, unsigned int key)
 {
-    return delete (table, key);
+    return delete(table, key);
 }
 
 int L_Find(Table *table, unsigned int key, int release)
 {
-    int *size = NULL;
-    KeySpace *arr = find(table, key, release, size);
-    for (int i = 0; i < *size; i++)
-    {
+        int size;
+        Elem *arr = find(table, key, release, &size);
+        for (int i = 0; i < size; i++)
+        {
         printf("--------------------\n");
         printf("Key: %u\n", arr[i].key);
         printf("Info: %u\n", arr[i].info);
@@ -28,7 +28,7 @@ int L_Find(Table *table, unsigned int key, int release)
         printf("--------------------\n");
     }
     free(arr);
-    return *size;
+    return size;
 }
 
 int L_Print(Table *table)

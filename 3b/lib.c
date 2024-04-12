@@ -25,10 +25,9 @@ int get_hash(unsigned int key)
 
 int get_last_release(Table *table, unsigned int key)
 {
-    int hash = get_hash(key) % table->msize;
+    int hash = get_hash(key) % table->msize, last = 0;
     if (!table->ks[hash])
         return 0;
-    int last = 0;
     KeySpace *ptr = table->ks[hash];
     while (ptr)
     {
@@ -71,31 +70,31 @@ int is_full(Table *table)
 
 int insert(Table *table, unsigned int key, unsigned int info)
 {
-    int hash = get_hash(key) % table->msize;
-    int release = get_last_release(table, key) + 1;
-    KeySpace *ptr = table->ks[hash];
-    KeySpace *item = (KeySpace *)malloc(sizeof(KeySpace));
-    item->next = NULL;
+    int hash = get_hash(key) % table->msize, release = get_last_release(table, key) + 1;
+    KeySpace *ptr = table->ks[hash], *item = (KeySpace *)malloc(sizeof(KeySpace));
+    item->next = table->ks[hash];
     item->info = info;
     item->key = key;
     item->release = release;
     (table->csize)++;
-    if (table->ks[hash])
+    table->ks[hash] = item;
+    /*if (table->ks[hash])
     {
         while (ptr->next)
             ptr = ptr->next;
         ptr->next = item;
         return 1;
     }
-    table->ks[hash] = item;
+    table->ks[hash] = item;*/
+    if (!table->ks[hash]->next)
+        return 1;
     return 0;
 }
 
 int delete(Table *table, unsigned int key)
 {
     int hash = get_hash(key) % table->msize;
-    KeySpace *ptr = table->ks[hash];
-    KeySpace *prev = table->ks[hash];
+    KeySpace *ptr = table->ks[hash], *prev = table->ks[hash];
     while (ptr)
     {
         if (ptr->release == get_last_release(table, key) && ptr->key == key)
@@ -113,22 +112,26 @@ int delete(Table *table, unsigned int key)
     return 1;
 }
 
-KeySpace *find(Table *table, unsigned int key, int release, int *size)
+void copy(Elem *dst, KeySpace *src)
 {
-    int hash = get_hash(key) % table->msize;
-    KeySpace *arr = (KeySpace *)malloc(sizeof(KeySpace));
+    dst->info = src->info;
+    dst->key = src->key;
+    dst->release = src->release;
+}
+
+Elem *find(Table *table, unsigned int key, int release, int *size)
+{
+    int hash = get_hash(key) % table->msize, max_index = branch_size(table, hash);
+    Elem *arr = (Elem *)malloc(sizeof(Elem));
     KeySpace *ptr = table->ks[hash];
     *size = 0;
-    for (int i = 0; i < branch_size(table, hash); i++)
+    for (int i = 0; i < max_index; i++)
     {
         if ((ptr->key == key) && ((!release) || (release == ptr->release)))
         {
-            arr[*size].info = ptr->info;
-            arr[*size].key = ptr->key;
-            arr[*size].next = NULL;
-            arr[*size].release = ptr->release;
+            copy(&arr[*size], ptr);
             (*size)++;
-            arr = (KeySpace *)realloc(arr, (*size + 1) * sizeof(KeySpace));
+            arr = (Elem *)realloc(arr, (*size + 1) * sizeof(Elem));
         }
         ptr = ptr->next;
     }
@@ -160,10 +163,12 @@ int export(Table *table, FILE *file)
         return 1;
     KeySpace *ptr;
     unsigned int s[2];
+    int max_index;
     for (int i = 0; i < table->msize; i++)
     {
         ptr = table->ks[i];
-        for (int j = 0; j < branch_size(table, i); j++)
+        max_index = branch_size(table, i);
+        for (int j = 0; j < max_index; j++)
         {
             s[0] = ptr->key;
             s[1] = ptr->info;
@@ -178,13 +183,14 @@ int refresh(Table *table)
 {
     if (is_empty(table))
         return 1;
-    KeySpace *ptr;
-    KeySpace *prev;
+    KeySpace *ptr, *prev;
+    int max_index;
     for (int i = 0; i < table->msize; i++)
     {
         ptr = table->ks[i];
         prev = table->ks[i];
-        for (int j = 0; j < branch_size(table, i); j++)
+        max_index = branch_size(table, i);
+        for (int j = 0; j < max_index; j++)
         {
             if (ptr->release != get_last_release(table, ptr->key))
             {
@@ -211,8 +217,7 @@ void prepare(Table *table)
 {
     for (int i = 0; i < table->msize; i++)
     {
-        KeySpace *ptr = table->ks[i];
-        KeySpace *temp = NULL;
+        KeySpace *ptr = table->ks[i], *temp = NULL;
         while (ptr)
         {
             temp = ptr;
@@ -260,8 +265,7 @@ void set_table(Table *table, int new_msize, KeySpace **arr)
 
 KeySpace **export_to_arr(Table *table)
 {
-    KeySpace **temp = (KeySpace **)calloc(table->csize, sizeof(KeySpace *));
-    KeySpace *ptr = NULL;
+    KeySpace **temp = (KeySpace **)calloc(table->csize, sizeof(KeySpace *)), *ptr = NULL;
     int n = 0;
     for (int i = 0; i < table->msize; i++)
     {
@@ -274,10 +278,10 @@ KeySpace **export_to_arr(Table *table)
 
 int smart_resize(Table *table)
 {
-    if (is_full(table))
+    /*if (is_full(table))
     {
         set_table(table, calculating(table->msize), export_to_arr(table));
         return 2;
-    }
+    }*/
     return 0;
 }
