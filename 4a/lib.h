@@ -17,16 +17,19 @@ typedef struct Tree
     Node *root;
 } Tree;
 
-typedef struct Elem
+typedef struct SFind
 {
     char *key;
     unsigned int info;
-} Elem;
+} SFind;
 
 Tree *init();
-Elem *find(Tree *, char *);
-unsigned int insert(Node **, char *, unsigned int);
-int delete(Node **, char *);
+unsigned int *find(Tree *, char *);
+SFind *sfind_keys(Tree *, char *);
+unsigned int *insert(Tree *, char *, unsigned int);
+int delete(Tree *, char *);
 int search(Tree *, char *, char *);
+void clear(Tree *);
+void printTree(Node *, int);
 
 #endif

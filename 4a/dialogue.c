@@ -38,7 +38,7 @@ int D_Add(Tree *tree)
     if (n)
         return 0;
     n = L_Add(tree, key, info);
-    printf("%d\n", errmsgs[n]);
+    printf("%s\n", errmsgs[n]);
     return 1;
 }
 
@@ -104,6 +104,31 @@ int D_SFind(Tree *tree)
     return 1;
 }
 
-/*int D_Tree_Print(Tree *);
-int D_Graph(Tree *);
-int D_Import(Tree *);*/
+int D_Tree_Print(Tree *tree)
+{
+    L_Tree_Print(tree);
+    return 1;
+}
+
+int D_Graph(Tree *tree) { return 1; }
+
+int D_Import(Tree *tree)
+{
+    char *errmsgs[] = {"Loaded", "File doesn't exist", "File empty"};
+    char *fname = NULL;
+    int check = 0;
+    int n;
+    do
+    {
+        printf("Enter .txt file name: ");
+        fname = readline("");
+        if (fname == NULL)
+            return 0;
+        int size = (int)strlen(fname);
+        if ((int)strlen(fname) > 3)
+            check = (fname[size - 4] == '.' && fname[size - 3] == 't' && fname[size - 2] == 'x' && fname[size - 1] == 't');
+    } while (!check);
+    n = L_Import(tree, fname);
+    printf("%s\n", errmsgs[n]);
+    return 1;
+}

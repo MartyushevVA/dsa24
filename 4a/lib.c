@@ -6,6 +6,7 @@
 Tree *init()
 {
     Tree *tree = (Tree *)malloc(sizeof(Tree));
+    tree->root = NULL;
     return tree;
 }
 
@@ -35,15 +36,12 @@ Node *find_node(Node *ptr, char *key)
     return NULL;
 }
 
-Elem *find(Tree *tree, char *key)
+unsigned int *find(Tree *tree, char *key)
 {
     Node *temp = find_node(tree->root, key);
     if (!temp)
         return NULL;
-    Elem *item = (Elem *)calloc(1, sizeof(Elem));
-    item->key = temp->key;
-    item->info = temp->info;
-    return item;
+    return &(temp->info);
 }
 
 Node *findMin(Node *ptr)
@@ -55,9 +53,117 @@ Node *findMin(Node *ptr)
     return ptr;
 }
 
-unsigned int insert(Node **proot, char *key, unsigned int info)
+int minimum(int a, int b, int c)
 {
-    Node *ptr = *proot, *par = NULL;
+    int min = a;
+    if (b < min)
+    {
+        min = b;
+    }
+    if (c < min)
+    {
+        min = c;
+    }
+    return min;
+}
+
+int levenshteinDistance(char *s1, char *s2)
+{
+    int len1 = strlen(s1);
+    int len2 = strlen(s2);
+    int matrix[len1 + 1][len2 + 1];
+    for (int i = 0; i <= len1; i++)
+    {
+        matrix[i][0] = i;
+    }
+
+    for (int j = 0; j <= len2; j++)
+    {
+        matrix[0][j] = j;
+    }
+
+    for (int i = 1; i <= len1; i++)
+    {
+        for (int j = 1; j <= len2; j++)
+        {
+            int cost = (s1[i - 1] != s2[j - 1]);
+            int deletion = matrix[i - 1][j] + 1;
+            int insertion = matrix[i][j - 1] + 1;
+            int substitution = matrix[i - 1][j - 1] + cost;
+            matrix[i][j] = minimum(deletion, insertion, substitution);
+        }
+    }
+    return matrix[len1][len2];
+}
+
+int str_comp(char *a, char *b)
+{
+    /*int res = 0, i = 0;
+    while (a[i] || b[i])
+    {
+        if (i < strlen(a) && i < strlen(b))
+            res += (abs(a[i] - b[i]));
+        else if (i < strlen(a))
+            res += (a[i] - 30);
+        else if (i < strlen(b))
+            res += (b[i] - 30);
+        i++;
+    }
+    return res;*/
+    return levenshteinDistance(a, b);
+}
+
+SFind *sfind_keys(Tree *tree, char *key)
+{
+    SFind *arr = (SFind *)calloc(1, sizeof(SFind));
+    int etal = INT_MAX, temp = 0, n = 0;
+    Node *ptr = findMin(tree->root);
+    while (ptr)
+    {
+        temp = str_comp(key, ptr->key);
+        etal = (temp < etal) && temp != 0 ? temp : etal;
+        ptr = ptr->next;
+    }
+    ptr = findMin(tree->root);
+    while (ptr)
+    {
+        temp = str_comp(key, ptr->key);
+        if (temp == etal)
+        {
+            arr[n].key = ptr->key;
+            arr[n++].info = ptr->info;
+            arr = (SFind *)realloc(arr, (n + 1) * sizeof(SFind));
+            // arr[n] = NULL;
+        }
+        ptr = ptr->next;
+    }
+    return arr;
+}
+
+void threading(Tree *tree)
+{
+    Node *curr = findMin(tree->root);
+    if (curr == tree->root)
+        return;
+    while (curr != tree->root)
+    {
+        if (curr == curr->parent->left)
+        {
+            curr->next = findMin(curr->parent->right);
+            if (!curr->next)
+                curr->next = curr->parent;
+        }
+        if (curr == curr->parent->right)
+            curr->next = curr->parent;
+        curr->next->prev = curr;
+        curr = curr->next;
+    }
+}
+
+unsigned int *insert(Tree *tree, char *key, unsigned int info)
+{
+    Node *ptr = tree->root, *par = NULL;
+    unsigned int *old_info;
     int cmp;
     while (ptr)
     {
@@ -65,8 +171,9 @@ unsigned int insert(Node **proot, char *key, unsigned int info)
         cmp = strcmp(key, ptr->key);
         if (cmp == 0)
         {
-            unsigned int old_info = ptr->info;
+            *old_info = ptr->info;
             ptr->info = info;
+            free(key);
             return old_info;
         }
         if (cmp < 0)
@@ -78,19 +185,21 @@ unsigned int insert(Node **proot, char *key, unsigned int info)
     ptr->parent = par;
     if (par == NULL)
     {
-        *proot = ptr;
-        return;
+        tree->root = ptr;
+        return NULL;
     }
     cmp = strcmp(key, par->key);
     if (cmp < 0)
         par->left = ptr;
-    else par->right = ptr;
-    return;
+    else
+        par->right = ptr;
+    threading(tree);
+    return NULL;
 }
 
-int delete(Node **proot, char *key)
+int delete(Tree *tree, char *key)
 {
-    Node *y = NULL, *par = NULL, *ptr = NULL, *x = find_node(*proot, key);
+    Node *y = NULL, *par = NULL, *ptr = NULL, *x = find_node(tree->root, key);
     if (!x)
         return 1;
     if (!(x->left) || !(x->right))
@@ -105,7 +214,7 @@ int delete(Node **proot, char *key)
     if (ptr)
         ptr->parent = par;
     if (!par)
-        *proot = ptr;
+        tree->root = ptr;
     else if (par->left == y)
         par->left = ptr;
     else
@@ -114,25 +223,43 @@ int delete(Node **proot, char *key)
         x->key = y->key;
     free(y->key);
     free(y);
+    threading(tree);
     return 0;
-}
-
-void look_through(Node *root, char *start, char *end, int *flag)
-{
-    if (root == NULL)
-        return;
-    int cond = strcmp(root->key, start) > 0 && strcmp(root->key, end) < 0;
-    if (cond)
-        *flag = 1;
-    look_through(root->right, start, end, flag);
-    if (cond)
-        printf("%s ", root->key);
-    look_through(root->left, start, end, flag);
 }
 
 int search(Tree *tree, char *start, char *end)
 {
-    int flag = 0;
-    look_through(tree->root, start, end, &flag);
-    return flag;
+    Node *curr = findMin(tree->root);
+    for (; curr; curr = curr->next)
+        printf("%s ", curr->key);
+    if (!tree->root)
+        return 0;
+    return 1;
+}
+
+void clear(Tree *tree)
+{
+    Node *ptr = findMin(tree->root);
+    while (ptr->next)
+    {
+        free(ptr->key);
+        ptr = ptr->next;
+        free(ptr->prev);
+    }
+    free(tree->root->key);
+    free(tree->root);
+    free(tree);
+}
+
+void printTree(Node *root, int space)
+{
+    if (!root)
+        return;
+    space += 4;
+    printTree(root->right, space);
+    printf("\n");
+    for (int i = 4; i < space; i++)
+        printf(" ");
+    printf("%s %u\n", root->key, root->info);
+    printTree(root->left, space);
 }
