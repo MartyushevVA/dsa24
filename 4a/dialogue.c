@@ -57,7 +57,6 @@ int D_Delete(Tree *tree)
 
 int D_Search(Tree *tree)
 {
-    unsigned int k;
     int n;
     printf("Enter first key: ");
     char *key_1 = readline("");
@@ -78,7 +77,6 @@ int D_Search(Tree *tree)
 
 int D_Find(Tree *tree)
 {
-    unsigned int k;
     int n;
     printf("Enter key: ");
     char *key = readline("");
@@ -92,7 +90,6 @@ int D_Find(Tree *tree)
 
 int D_SFind(Tree *tree)
 {
-    unsigned int k;
     int n;
     printf("Enter key: ");
     char *key = readline("");

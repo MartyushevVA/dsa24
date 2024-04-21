@@ -6,10 +6,9 @@
 
 int L_Add(Tree *tree, char *key, unsigned int info)
 {
-    unsigned int *old_info = insert(tree, key, info);
-    if (old_info)
+    if (insert(tree, key, &info))
     {
-        printf("Value: %u ", *old_info);
+        printf("Value: %u ", info);
         return 1;
     }
     return 0;
@@ -36,10 +35,11 @@ int L_Find(Tree *tree, char *key)
 
 int L_SFind(Tree *tree, char *key)
 {
-    SFind *arr = sfind_keys(tree, key);
-    if (!arr->key)
+    int size = 0;
+    SFind *arr = sfind_keys(tree, key, &size);
+    if (!size)
         return 0;
-    for (int i = 0; arr[i].key; i++)
+    for (int i = 0; i < size; i++)
         printf("Key: %s | Info: %u\n", (arr[i]).key, (arr[i]).info);
     free(arr);
     return 1;
@@ -102,13 +102,11 @@ int L_Import(Tree *tree, char *fname)
                 free(key);
                 continue;
             }
-            insert(tree, key, info);
+            insert(tree, key, &info);
         }
         parity = (parity + 1) % 2;
     }
     free(s);
-    if (key)
-        free(key);
     fclose(file);
     if (!tree->root)
         return 2;

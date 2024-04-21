@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "main.h"
 
 int main()
@@ -14,6 +15,7 @@ int main()
         option = dialog();
     }
     printf("Done\n");
-    clear(tree);
+    clear(tree->root);
+    free(tree);
     return 0;
 }

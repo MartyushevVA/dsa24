@@ -25,11 +25,11 @@ typedef struct SFind
 
 Tree *init();
 unsigned int *find(Tree *, char *);
-SFind *sfind_keys(Tree *, char *);
-unsigned int *insert(Tree *, char *, unsigned int);
+SFind *sfind_keys(Tree *, char *, int *);
+int insert(Tree *, char *, unsigned int *);
 int delete(Tree *, char *);
 int search(Tree *, char *, char *);
-void clear(Tree *);
+void clear(Node *);
 void printTree(Node *, int);
 
 #endif
