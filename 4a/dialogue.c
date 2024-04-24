@@ -6,7 +6,7 @@
 
 int dialog()
 {
-    char *msgs[] = {"0. Quit\n", "1. Add\n", "2. Delete\n", "3. Search\n", "4. Find\n", "5. Smart find\n", "6. Format print\n", "7. Graph print\n", "8. Import\n"};
+    char *msgs[] = {"0. Quit\n", "1. Add\n", "2. Delete\n", "3. Search\n", "4. Find\n", "5. Special find\n", "6. Format print\n", "7. GraphViz print\n", "8. Import\n"};
     char *errmsg = "";
     int N = 9;
     int choice = 0;
@@ -88,26 +88,30 @@ int D_Find(Tree *tree)
     return 1;
 }
 
-int D_SFind(Tree *tree)
+int D_Special_Find(Tree *tree)
 {
     int n;
     printf("Enter key: ");
     char *key = readline("");
     if (!key)
         return 0;
-    n = L_SFind(tree, key);
+    n = L_Special_Find(tree, key);
     if (!n)
         printf("Nothing\n");
     return 1;
 }
 
-int D_Tree_Print(Tree *tree)
+int D_Format_Print(Tree *tree)
 {
-    L_Tree_Print(tree);
+    L_Format_Print(tree);
     return 1;
 }
 
-int D_Graph(Tree *tree) { return 1; }
+int D_GraphViz_Print(Tree *tree)
+{
+    L_GraphViz_Print(tree);
+    return 1;
+}
 
 int D_Import(Tree *tree)
 {

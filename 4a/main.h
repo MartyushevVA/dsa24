@@ -11,9 +11,9 @@ int D_Add(Tree *);
 int D_Delete(Tree *);
 int D_Search(Tree *);
 int D_Find(Tree *);
-int D_SFind(Tree *);
-int D_Tree_Print(Tree *);
-int D_Graph(Tree *);
+int D_Special_Find(Tree *);
+int D_Format_Print(Tree *);
+int D_GraphViz_Print(Tree *);
 int D_Import(Tree *);
 
 #endif

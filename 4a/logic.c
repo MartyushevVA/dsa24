@@ -4,6 +4,24 @@
 #include "lib.h"
 #include "logic.h"
 
+unsigned int stoui(char *str)
+{
+    unsigned int num = 0;
+    for (int i = 0; str[i] && '0' <= str[i] && str[i] <= '9'; i++)
+        num = num * 10 + (str[i] - '0');
+    return num;
+}
+
+int dig(unsigned int num)
+{
+    if (!num)
+        return 1;
+    int i = 1;
+    while (num /= 10)
+        i++;
+    return i;
+}
+
 int L_Add(Tree *tree, char *key, unsigned int info)
 {
     if (insert(tree, key, &info))
@@ -26,17 +44,17 @@ int L_Search(Tree *tree, char *key_1, char *key_2)
 
 int L_Find(Tree *tree, char *key)
 {
-    unsigned int *item = find(tree, key);
-    if (!item)
+    unsigned int *info = find_info(tree, key);
+    if (!info)
         return 0;
-    printf("Info: %u\n", *item);
+    printf("Info: %u\n", *info);
     return 1;
 }
 
-int L_SFind(Tree *tree, char *key)
+int L_Special_Find(Tree *tree, char *key)
 {
     int size = 0;
-    SFind *arr = sfind_keys(tree, key, &size);
+    SFind *arr = special_find(tree, key, &size);
     if (!size)
         return 0;
     for (int i = 0; i < size; i++)
@@ -45,36 +63,22 @@ int L_SFind(Tree *tree, char *key)
     return 1;
 }
 
-void L_Tree_Print(Tree *tree)
+void L_Format_Print(Tree *tree)
 {
-    printTree(tree->root, 0);
+    format_print(tree->root, 0);
 }
 
-int L_Graph(Tree *tree)
+void L_GraphViz_Print(Tree *tree)
 {
-    return 1;
-}
-
-unsigned int stoui(char *str)
-{
-    unsigned int num = 0;
-    int i = 0;
-    while (str[i] && '0' <= str[i] && str[i] <= '9')
+    FILE *file = fopen("graph.dot", "w");
+    int filler = 0;
+    if (file)
     {
-        num = num * 10 + (str[i] - '0');
-        i++;
+        fprintf(file, "digraph G {\n");
+        graphviz(tree->root, file, &filler);
+        fprintf(file, "}\n");
+        fclose(file);
     }
-    return num;
-}
-
-int dig(unsigned int num)
-{
-    if (!num)
-        return 1;
-    int i = 1;
-    while (num /= 10)
-        i++;
-    return i;
 }
 
 int L_Import(Tree *tree, char *fname)
@@ -83,21 +87,21 @@ int L_Import(Tree *tree, char *fname)
     free(fname);
     if (!file)
         return 1;
-    char *s = (char *)calloc(1024, sizeof(char));
+    char *buffer = (char *)calloc(1024, sizeof(char));
     unsigned int info = 0;
     char *key = NULL;
     int parity = 0;
-    while (fscanf(file, "%s\n", s) == 1)
+    while (fscanf(file, "%s\n", buffer) == 1)
     {
         if (!parity)
         {
-            key = (char *)calloc(strlen(s) + 1, sizeof(char));
-            strcpy(key, s);
+            key = (char *)calloc(strlen(buffer) + 1, sizeof(char));
+            strcpy(key, buffer);
         }
         else
         {
-            info = stoui(s);
-            if (dig(info) != (int)strlen(s))
+            info = stoui(buffer);
+            if (dig(info) != (int)strlen(buffer))
             {
                 free(key);
                 continue;
@@ -106,8 +110,8 @@ int L_Import(Tree *tree, char *fname)
         }
         parity = (parity + 1) % 2;
     }
-    free(s);
     fclose(file);
+    free(buffer);
     if (!tree->root)
         return 2;
     return 0;

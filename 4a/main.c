@@ -4,7 +4,7 @@
 
 int main()
 {
-    int (*fptr[])(Tree *) = {NULL, D_Add, D_Delete, D_Search, D_Find, D_SFind, D_Tree_Print, D_Graph, D_Import};
+    int (*fptr[])(Tree *) = {NULL, D_Add, D_Delete, D_Search, D_Find, D_Special_Find, D_Format_Print, D_GraphViz_Print, D_Import};
     int option;
     Tree *tree = init();
     option = dialog();

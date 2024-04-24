@@ -9,255 +9,6 @@ Tree *init()
     return tree;
 }
 
-Node *init_node(char *key, unsigned int info)
-{
-    Node *elem = (Node *)malloc(sizeof(Node));
-    elem->key = key;
-    elem->left = NULL;
-    elem->right = NULL;
-    elem->next = NULL;
-    elem->prev = NULL;
-    elem->parent = NULL;
-    elem->info = info;
-    return elem;
-}
-
-Node *find_node(Node *ptr, char *key)
-{
-    if (!ptr)
-        return NULL;
-    if (strcmp(key, ptr->key) == 0)
-        return ptr;
-    if (strcmp(key, ptr->key) < 0)
-        return find_node(ptr->left, key);
-    return find_node(ptr->right, key);
-}
-
-unsigned int *find(Tree *tree, char *key)
-{
-    Node *temp = find_node(tree->root, key);
-    if (!temp)
-        return NULL;
-    return &(temp->info);
-}
-
-Node *findMin(Node *ptr)
-{
-    if (!ptr)
-        return NULL;
-    while (ptr->left)
-        ptr = ptr->left;
-    return ptr;
-}
-
-/*int minimum(int a, int b, int c)
-{
-    int min = a;
-    if (b < min)
-        min = b;
-    if (c < min)
-        min = c;
-    return min;
-}
-
-int levenshteinDistance(char *s1, char *s2)
-{
-    int len1 = strlen(s1);
-    int len2 = strlen(s2);
-    int matrix[len1 + 1][len2 + 1];
-    for (int i = 0; i <= len1; i++)
-    {
-        matrix[i][0] = i;
-    }
-
-    for (int j = 0; j <= len2; j++)
-    {
-        matrix[0][j] = j;
-    }
-
-    for (int i = 1; i <= len1; i++)
-    {
-        for (int j = 1; j <= len2; j++)
-        {
-            int cost = (s1[i - 1] != s2[j - 1]);
-            int deletion = matrix[i - 1][j] + 1;
-            int insertion = matrix[i][j - 1] + 1;
-            int substitution = matrix[i - 1][j - 1] + cost;
-            matrix[i][j] = minimum(deletion, insertion, substitution);
-        }
-    }
-    return matrix[len1][len2];
-}
-
-int str_comp(char *a, char *b)
-{
-    int res = 0, i = 0;
-    while (a[i] || b[i])
-    {
-        if (i < strlen(a) && i < strlen(b))
-            res += (abs(a[i] - b[i]));
-        else if (i < strlen(a))
-            res += (a[i] - 30);
-        else if (i < strlen(b))
-            res += (b[i] - 30);
-        i++;
-    }
-    return res;
-    return levenshteinDistance(a, b);
-}*/
-
-SFind *sfind_keys(Tree *tree, char *key, int *size)
-{
-    SFind *arr = (SFind *)calloc((*size) + 1, sizeof(SFind));
-    int etal = 2000000, temp = 0;
-    Node *ptr = findMin(tree->root);
-    while (ptr)
-    {
-        temp = abs(strcmp(key, ptr->key));
-        etal = (temp < etal) && temp ? temp : etal;
-        ptr = ptr->next;
-    }
-    ptr = findMin(tree->root);
-    while (ptr)
-    {
-        temp = abs(strcmp(key, ptr->key));
-        if (temp == etal)
-        {
-            arr[*size].key = ptr->key;
-            arr[(*size)++].info = ptr->info;
-            arr = (SFind *)realloc(arr, ((*size) + 1) * sizeof(SFind));
-        }
-        ptr = ptr->next;
-    }
-    return arr;
-}
-
-Node *findDeepest(Node *ptr)
-{
-    if (!ptr)
-        return NULL;
-    while (ptr->left || ptr->right)
-    {
-        if (ptr->left)
-            ptr = ptr->left;
-        else
-            ptr = ptr->right;
-    }
-    return ptr;
-}
-
-void threading(Tree *tree)
-{
-    Node *curr = findDeepest(tree->root);
-    Node *temp = NULL;
-    printf("\n");
-    while (curr != tree->root)
-    {
-        if (curr == curr->parent->left)
-        {
-            temp = findDeepest(curr->parent->right);
-            if (temp)
-                curr->next = temp;
-            else
-                curr->next = curr->parent;
-        }
-        if (curr == curr->parent->right)
-            curr->next = curr->parent;
-        curr->next->prev = curr;
-        curr = curr->next;
-    }
-}
-
-int insert(Tree *tree, char *key, unsigned int *info)
-{
-    Node *ptr = tree->root, *par = NULL;
-    unsigned int temp = 0;
-    int cmp;
-    while (ptr)
-    {
-        par = ptr;
-        cmp = strcmp(key, ptr->key);
-        if (cmp == 0)
-        {
-            temp = ptr->info;
-            ptr->info = *info;
-            *info = temp;
-            free(key);
-            return 1;
-        }
-        if (cmp < 0)
-            ptr = ptr->left;
-        else
-            ptr = ptr->right;
-    }
-    ptr = init_node(key, *info);
-    ptr->parent = par;
-    if (par == NULL)
-    {
-        tree->root = ptr;
-        return 0;
-    }
-    cmp = strcmp(key, par->key);
-    if (cmp < 0)
-        par->left = ptr;
-    else
-        par->right = ptr;
-    return 0;
-}
-
-int delete(Tree *tree, char *key)
-{
-    Node *y = NULL, *par = NULL, *ptr = NULL, *x = find_node(tree->root, key);
-    if (!x)
-        return 1;
-
-    if (!(x->left) || !(x->right))
-        y = x;
-    else
-        y = findMin(x->right);
-
-    if (y->left)
-        ptr = y->left;
-    else
-        ptr = y->right;
-    par = y->parent;
-
-    if (ptr)
-        ptr->parent = par;
-
-    if (!par)
-        tree->root = ptr;
-    else if (par->left == y)
-        par->left = ptr;
-    else
-        par->right = ptr;
-
-    if (y != x)
-    {
-        free(x->key);
-        x->key = y->key;
-        x->info = y->info;
-    }
-    free(y);
-    return 0;
-}
-
-int search(Tree *tree, char *start, char *end)
-{
-    threading(tree);
-    Node *curr = findDeepest(tree->root);
-    while (curr)
-    {
-        if (strcmp(start, curr->key) >= 0 && strcmp(end, curr->key) <= 0)
-            printf("%s ", curr->key);
-        curr = curr->next;
-    }
-    printf("\n");
-    if (!tree->root)
-        return 0;
-    return 1;
-}
-
 void clear(Node *node)
 {
     if (!node)
@@ -268,15 +19,240 @@ void clear(Node *node)
     free(node);
 }
 
-void printTree(Node *root, int space)
+Node *init_node(char *key, unsigned int info)
 {
-    if (!root)
+    Node *elem = (Node *)calloc(1, sizeof(Node));
+    elem->key = key;
+    elem->info = info;
+    return elem;
+}
+
+Node *find_node(Node *node, char *key)
+{
+    if (!node)
+        return NULL;
+    if (strcmp(key, node->key) == 0)
+        return node;
+    if (strcmp(key, node->key) < 0)
+        return find_node(node->left, key);
+    return find_node(node->right, key);
+}
+
+Node *find_min(Node *node)
+{
+    if (!node)
+        return NULL;
+    while (node->left)
+        node = node->left;
+    return node;
+}
+
+Node *find_deepest(Node *node)
+{
+    if (!node)
+        return NULL;
+    while (node->left || node->right)
+    {
+        if (node->left)
+            node = node->left;
+        else
+            node = node->right;
+    }
+    return node;
+}
+
+char *beautify_string(char *str)
+{
+    int i = 0;
+    while (str[i++])
+        if (str[i] == '/')
+            str[i] = '.';
+    return str;
+}
+
+int compare_string(char *str1, char *str2)
+{
+    int count = 0;
+    for (int i = 0; str1[i] && str2[i]; i++)
+    {
+        if (str1[i] == str2[i])
+            count++;
+        else
+            break;
+    }
+    return count;
+}
+
+void threading(Tree *tree)
+{
+    Node *node = find_deepest(tree->root);
+    Node *temp = NULL;
+    while (node != tree->root)
+    {
+        if (node == node->parent->left)
+        {
+            temp = find_deepest(node->parent->right);
+            if (temp)
+                node->next = temp;
+            else
+                node->next = node->parent;
+        }
+        if (node == node->parent->right)
+            node->next = node->parent;
+        node->next->prev = node;
+        node = node->next;
+    }
+}
+
+unsigned int *find_info(Tree *tree, char *key)
+{
+    Node *node = find_node(tree->root, key);
+    if (!node)
+        return NULL;
+    return &(node->info);
+}
+
+SFind *special_find(Tree *tree, char *key, int *size)
+{
+    SFind *arr = (SFind *)calloc((*size) + 1, sizeof(SFind));
+    Node *node = tree->root;
+    int match = 0, old_match = 0;
+    while (node)
+    {
+        match = compare_string(key, node->key);
+        if (match < old_match)
+            break;
+        if (match == old_match)
+            (*size)++;
+        else
+            *size = 1;
+        old_match = match;
+        arr = (SFind *)realloc(arr, (*size) * sizeof(SFind));
+        arr[*size - 1].key = node->key;
+        arr[*size - 1].info = node->info;
+        node = (strcmp(key, node->key) < 0) ? node->left : node->right;
+    }
+    return arr;
+}
+
+int insert(Tree *tree, char *key, unsigned int *info)
+{
+    Node *node = tree->root, *par = NULL;
+    unsigned int old_info = 0;
+    int cmp;
+    while (node)
+    {
+        par = node;
+        cmp = strcmp(key, node->key);
+        if (cmp == 0)
+        {
+            old_info = node->info;
+            node->info = *info;
+            *info = old_info;
+            free(key);
+            return 1;
+        }
+        if (cmp < 0)
+            node = node->left;
+        else
+            node = node->right;
+    }
+    node = init_node(key, *info);
+    node->parent = par;
+    if (!par)
+    {
+        tree->root = node;
+        return 0;
+    }
+    cmp = strcmp(key, par->key);
+    if (cmp < 0)
+        par->left = node;
+    else
+        par->right = node;
+    return 0;
+}
+
+int delete(Tree *tree, char *key)
+{
+    Node *node = NULL, *par = NULL;
+    Node *x = find_node(tree->root, key), *y = NULL;
+    if (!x)
+        return 1;
+    if (x->left && x->parent)
+        y = find_min(x->right);
+    else
+        y = x;
+    if (y->left)
+        node = y->left;
+    else
+        node = y->right;
+    par = y->parent;
+    if (node)
+        node->parent = par;
+
+    if (!par)
+        tree->root = node;
+    else if (par->left == y)
+        par->left = node;
+    else
+        par->right = node;
+    if (y != x)
+    {
+        free(x->key);
+        x->key = y->key;
+        x->info = y->info;
+    }
+    free(y);
+    return 0;
+}
+
+int search(Tree *tree, char *begin, char *end)
+{
+    if (!tree->root)
+        return 0;
+    threading(tree);
+    Node *node = find_deepest(tree->root);
+    while (node)
+    {
+        if (strcmp(begin, node->key) <= 0 && strcmp(end, node->key) >= 0)
+            printf("%s ", node->key);
+        node = node->next;
+    }
+    printf("\n");
+    return 1;
+}
+
+void format_print(Node *node, int space)
+{
+    if (!node)
         return;
     space += 4;
-    printTree(root->right, space);
+    format_print(node->right, space);
     printf("\n");
     for (int i = 4; i < space; i++)
         printf(" ");
-    printf("%s %u\n", root->key, root->info);
-    printTree(root->left, space);
+    printf("%s %u\n", node->key, node->info);
+    format_print(node->left, space);
+}
+
+void graphviz(Node *node, FILE *fp, int *filler)
+{
+    if (!node)
+        return;
+    (*filler)++;
+    fprintf(fp, "    %s;\n", beautify_string(node->key));
+    if (node->left)
+    {
+        fprintf(fp, "    %s -> %s;\n", beautify_string(node->key), beautify_string(node->left->key));
+        if (!node->right)
+            fprintf(fp, "    %d [style=invis];\n    %s -> %d [style=invis];\n", *filler, beautify_string(node->key), *filler);
+        graphviz(node->left, fp, filler);
+    }
+    if (node->right)
+    {
+        if (!node->left)
+            fprintf(fp, "    %d [style=invis];\n    %s -> %d [style=invis];\n", *filler, beautify_string(node->key), *filler);
+        fprintf(fp, "    %s -> %s;\n", beautify_string(node->key), beautify_string(node->right->key));
+        graphviz(node->right, fp, filler);
+    }
 }

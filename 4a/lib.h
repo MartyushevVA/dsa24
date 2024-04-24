@@ -24,12 +24,14 @@ typedef struct SFind
 } SFind;
 
 Tree *init();
-unsigned int *find(Tree *, char *);
-SFind *sfind_keys(Tree *, char *, int *);
+void clear(Node *);
+
 int insert(Tree *, char *, unsigned int *);
 int delete(Tree *, char *);
 int search(Tree *, char *, char *);
-void clear(Node *);
-void printTree(Node *, int);
+unsigned int *find_info(Tree *, char *);
+SFind *special_find(Tree *, char *, int *);
+void format_print(Node *, int);
+void graphviz(Node *, FILE *, int *);
 
 #endif
