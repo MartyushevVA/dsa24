@@ -202,6 +202,7 @@ int delete(Tree *tree, char *key)
         x->key = y->key;
         x->info = y->info;
     }
+    free(y->key);
     free(y);
     return 0;
 }

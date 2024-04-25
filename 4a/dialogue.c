@@ -51,6 +51,7 @@ int D_Delete(Tree *tree)
     if (!key)
         return 0;
     n = L_Delete(tree, key);
+    free(key);
     printf("%s\n", errmsgs[n]);
     return 1;
 }
@@ -70,6 +71,8 @@ int D_Search(Tree *tree)
         return 0;
     }
     n = L_Search(tree, key_1, key_2);
+    free(key_1);
+    free(key_2);
     if (!n)
         printf("Nothing\n");
     return 1;
@@ -83,6 +86,7 @@ int D_Find(Tree *tree)
     if (!key)
         return 0;
     n = L_Find(tree, key);
+    free(key);
     if (!n)
         printf("Nothing\n");
     return 1;
@@ -96,6 +100,7 @@ int D_Special_Find(Tree *tree)
     if (!key)
         return 0;
     n = L_Special_Find(tree, key);
+    free(key);
     if (!n)
         printf("Nothing\n");
     return 1;
@@ -123,7 +128,7 @@ int D_Import(Tree *tree)
     {
         printf("Enter .txt file name: ");
         fname = readline("");
-        if (fname == NULL)
+        if (!fname)
             return 0;
         int size = (int)strlen(fname);
         if ((int)strlen(fname) > 3)
