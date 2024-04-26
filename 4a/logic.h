@@ -10,5 +10,6 @@ int L_Special_Find(Tree *, char *);
 void L_Format_Print(Tree *);
 void L_GraphViz_Print(Tree *);
 int L_Import(Tree *, char *);
+int L_Timing();
 
 #endif

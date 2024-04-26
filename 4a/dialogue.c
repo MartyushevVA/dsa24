@@ -6,9 +6,9 @@
 
 int dialog()
 {
-    char *msgs[] = {"0. Quit\n", "1. Add\n", "2. Delete\n", "3. Search\n", "4. Find\n", "5. Special find\n", "6. Format print\n", "7. GraphViz print\n", "8. Import\n"};
+    char *msgs[] = {"0. Quit\n", "1. Add\n", "2. Delete\n", "3. Search\n", "4. Find\n", "5. Special find\n", "6. Format print\n", "7. GraphViz print\n", "8. Import\n", "9. Timing\n"};
     char *errmsg = "";
-    int N = 9;
+    int N = 10;
     int choice = 0;
     do
     {
@@ -137,4 +137,9 @@ int D_Import(Tree *tree)
     n = L_Import(tree, fname);
     printf("%s\n", errmsgs[n]);
     return 1;
+}
+
+int D_Timing(Tree* tree)
+{
+    return L_Timing();
 }

@@ -15,5 +15,6 @@ int D_Special_Find(Tree *);
 int D_Format_Print(Tree *);
 int D_GraphViz_Print(Tree *);
 int D_Import(Tree *);
+int D_Timing(Tree *);
 
 #endif
