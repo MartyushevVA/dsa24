@@ -22,7 +22,7 @@ void clear(Node *node)
 Node *init_node(char *key, unsigned int info)
 {
     Node *elem = (Node *)calloc(1, sizeof(Node));
-    elem->key = key;
+    elem->key = strdup(key);
     elem->info = info;
     return elem;
 }
@@ -149,7 +149,6 @@ int insert(Tree *tree, char *key, unsigned int *info)
             old_info = node->info;
             node->info = *info;
             *info = old_info;
-            free(key);
             return 1;
         }
         if (cmp < 0)

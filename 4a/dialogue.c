@@ -38,6 +38,7 @@ int D_Add(Tree *tree)
     if (n)
         return 0;
     n = L_Add(tree, key, info);
+    free(key);
     printf("%s\n", errmsgs[n]);
     return 1;
 }
