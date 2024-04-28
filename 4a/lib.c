@@ -173,14 +173,14 @@ int insert(Tree *tree, char *key, unsigned int *info)
 
 int delete(Tree *tree, char *key)
 {
-    Node *node = NULL, *par = NULL;
     Node *x = find_node(tree->root, key), *y = NULL;
+    Node *node = NULL, *par = NULL;
     if (!x)
         return 1;
-    if (x->left && x->parent)
-        y = find_min(x->right);
-    else
+    if (!x->left || !x->right)
         y = x;
+    else
+        y = find_min(x->right);
     if (y->left)
         node = y->left;
     else
@@ -188,7 +188,6 @@ int delete(Tree *tree, char *key)
     par = y->parent;
     if (node)
         node->parent = par;
-
     if (!par)
         tree->root = node;
     else if (par->left == y)
@@ -200,9 +199,13 @@ int delete(Tree *tree, char *key)
         free(x->key);
         x->key = y->key;
         x->info = y->info;
+        free(y);
     }
-    free(y->key);
-    free(y);
+    else
+    {
+        free(y->key);
+        free(y);
+    }
     return 0;
 }
 

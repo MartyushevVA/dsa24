@@ -35,7 +35,7 @@ int L_Add(Tree *tree, char *key, unsigned int info)
 
 int L_Delete(Tree *tree, char *key)
 {
-    return delete(tree, key);
+    return delete (tree, key);
 }
 
 int L_Search(Tree *tree, char *key_1, char *key_2)
@@ -135,80 +135,66 @@ SFind *set(int size)
     return arr;
 }
 
-SFind *some(SFind* src, int size, int new_size)
+SFind *some(SFind *src, int size, int new_size)
 {
     srand(time(NULL));
     SFind *arr = (SFind *)malloc(new_size * sizeof(SFind));
-    for (int i=0; i<new_size; i++)
+    for (int i = 0; i < new_size; i++)
     {
         int ind = rand() % size;
-        arr[i].info = src[i].info;
-        arr[i].key = strdup(src[i].key);
+        arr[i].info = src[ind].info;
+        arr[i].key = strdup(src[ind].key);
     }
     return arr;
 }
 
-void sf_clear(SFind* arr, int size)
+void sf_clear(SFind *arr, int size)
 {
-    for (int i=0; i<size; i++)
+    for (int i = 0; i < size; i++)
         free(arr[i].key);
     free(arr);
 }
 
 int L_Timing()
 {
-    Tree *tree = init();
     clock_t begin, end;
-    const int MAX_NUM = 1000000, MIN_NUM = 100000, step = 100000, capacity = 10000;
+    const int MAX_NUM = 2000001, MIN_NUM = 100000, step = 100000, capacity = 100000;
     const int num_of_res = 25;
     for (int num_of_elemts = MIN_NUM; num_of_elemts < MAX_NUM; num_of_elemts += step)
     {
         double insertions = 0.0, findings = 0.0, deletions = 0.0;
         for (int j = 0; j < num_of_res; j++)
         {
-            int inserted = 0, found = 0, deleted = 0;
+            Tree *tree = init();
+            printf(".");
             SFind *arr = set(num_of_elemts);
+            SFind *addit = set(capacity);
             for (int i = 0; i < num_of_elemts; i++)
                 insert(tree, arr[i].key, &(arr[i].info));
-            // дерево заполнено
-
-            // замер вставки
-            SFind* temp = set(capacity);
             begin = clock();
             for (int i = 0; i < capacity; i++)
-                if (!insert(tree, temp[i].key, &(temp[i].info)))
-                    inserted++;
+                insert(tree, addit[i].key, &(addit[i].info));
             end = clock();
             insertions += (double)(end - begin) / (CLOCKS_PER_SEC / 1000);
-            sf_clear(temp, capacity);
-            
-            // замер поиска
-            temp = some(arr, num_of_elemts, capacity);
             begin = clock();
             for (int i = 0; i < capacity; i++)
-                if (find_info(tree, temp[i].key))
-                    found++;
+                find_info(tree, addit[i].key);
             end = clock();
             findings += (double)(end - begin) / (CLOCKS_PER_SEC / 1000);
-            sf_clear(temp, capacity);
-
-            // замер удаления
-            temp = some(arr, num_of_elemts, capacity);printf("F");
             begin = clock();
             for (int i = 0; i < capacity; i++)
-                if (!delete(tree, temp[i].key))
-                    deleted++;
+                delete(tree, addit[i].key);
             end = clock();
             deletions += (double)(end - begin) / (CLOCKS_PER_SEC / 1000);
-            sf_clear(temp, capacity);
+            sf_clear(addit, capacity);
             sf_clear(arr, num_of_elemts);
             clear(tree->root);
+            free(tree);
         }
         insertions /= num_of_res;
         findings /= num_of_res;
         deletions /= num_of_res;
-        printf("Num of elements: %d\n Time on insert(): %f ms.\n Time on find(): %f ms.\n Time on delete(): %f ms.\n", num_of_elemts, insertions, findings, deletions);
+        printf("\nNum of elements: %d\n Time on insert(): %f ms.\n Time on find(): %f ms.\n Time on delete(): %f ms.\n", num_of_elemts, insertions, findings, deletions);
     }
-    free(tree);
     return 0;
 }
