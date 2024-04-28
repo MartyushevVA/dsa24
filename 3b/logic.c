@@ -5,9 +5,7 @@
 
 int L_Insert(Table *table, unsigned int key, unsigned int info)
 {
-    int ntf = smart_resize(table);
-    ntf += insert(table, key, info);
-    return ntf;
+    return insert(table, key, info);
 }
 
 int L_Delete(Table *table, unsigned int key)
@@ -17,10 +15,10 @@ int L_Delete(Table *table, unsigned int key)
 
 int L_Find(Table *table, unsigned int key, int release)
 {
-        int size;
-        Elem *arr = find(table, key, release, &size);
-        for (int i = 0; i < size; i++)
-        {
+    int size;
+    Elem *arr = find(table, key, release, &size);
+    for (int i = 0; i < size; i++)
+    {
         printf("--------------------\n");
         printf("Key: %u\n", arr[i].key);
         printf("Info: %u\n", arr[i].info);

@@ -34,7 +34,4 @@ int print(Table *);
 int export(Table *, FILE *);
 int refresh(Table *);
 
-int smart_resize(Table *);
-int is_empty(Table *);
-
 #endif

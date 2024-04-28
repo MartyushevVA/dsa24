@@ -78,14 +78,6 @@ int insert(Table *table, unsigned int key, unsigned int info)
     item->release = release;
     (table->csize)++;
     table->ks[hash] = item;
-    /*if (table->ks[hash])
-    {
-        while (ptr->next)
-            ptr = ptr->next;
-        ptr->next = item;
-        return 1;
-    }
-    table->ks[hash] = item;*/
     if (!table->ks[hash]->next)
         return 1;
     return 0;
@@ -234,54 +226,4 @@ void clear(Table *table)
     prepare(table);
     free(table->ks);
     free(table);
-}
-
-int is_prime(int a)
-{
-    for (int i = 2; i <= a / 2; i++)
-        if (a % i == 0)
-            return 0;
-    return 1;
-}
-
-int calculating(int a)
-{
-    int b = a + 3;
-    while (!is_prime(b))
-        b++;
-    return b;
-}
-
-void set_table(Table *table, int new_msize, KeySpace **arr)
-{
-    int size = table->csize;
-    prepare(table);
-    table->msize = new_msize;
-    table->ks = (KeySpace **)realloc(table->ks, new_msize * sizeof(KeySpace *));
-    prepare(table);
-    for (int i = 0; i < size; i++)
-        insert(table, arr[i]->key, arr[i]->info);
-}
-
-KeySpace **export_to_arr(Table *table)
-{
-    KeySpace **temp = (KeySpace **)calloc(table->csize, sizeof(KeySpace *)), *ptr = NULL;
-    int n = 0;
-    for (int i = 0; i < table->msize; i++)
-    {
-        ptr = table->ks[i];
-        for (int j = 0; j < branch_size(table, i); j++)
-            temp[n++] = ptr;
-    }
-    return temp;
-}
-
-int smart_resize(Table *table)
-{
-    /*if (is_full(table))
-    {
-        set_table(table, calculating(table->msize), export_to_arr(table));
-        return 2;
-    }*/
-    return 0;
 }
