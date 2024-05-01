@@ -158,7 +158,7 @@ void sf_clear(SFind *arr, int size)
 int L_Timing()
 {
     clock_t begin, end;
-    const int MAX_NUM = 2000001, MIN_NUM = 100000, step = 100000, capacity = 100000;
+    const int MAX_NUM = 2000001, MIN_NUM = 100000, step = 100000, capacity = 2000;
     const int num_of_res = 25;
     for (int num_of_elemts = MIN_NUM; num_of_elemts < MAX_NUM; num_of_elemts += step)
     {

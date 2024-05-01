@@ -47,6 +47,15 @@ Node *find_min(Node *node)
     return node;
 }
 
+Node *find_max(Node *node)
+{
+    if (!node)
+        return NULL;
+    while (node->right)
+        node = node->right;
+    return node;
+}
+
 Node *find_deepest(Node *node)
 {
     if (!node)
@@ -68,19 +77,6 @@ char *beautify_string(char *str)
         if (str[i] == '/')
             str[i] = '.';
     return str;
-}
-
-int compare_string(char *str1, char *str2)
-{
-    int count = 0;
-    for (int i = 0; str1[i] && str2[i]; i++)
-    {
-        if (str1[i] == str2[i])
-            count++;
-        else
-            break;
-    }
-    return count;
 }
 
 void threading(Tree *tree)
@@ -112,25 +108,101 @@ unsigned int *find_info(Tree *tree, char *key)
     return &(node->info);
 }
 
+int power(int x, int a)
+{
+    while (a--)
+        x *= x;
+    return x;
+}
+
+int my_strcmp(char *str1, char *str2)
+{
+    int i;
+    for (i = 0; str1[i] && str2[i]; i++)
+        if (str1[i] - str2[i])
+            return abs(str1[i] - str2[i]);
+    return abs(str1[i] - str2[i]);
+}
+
+int compare_string(char *str1, char *str2)
+{
+    int count = 0;
+    for (int i = 0; str1[i] && str2[i]; i++)
+    {
+        if (str1[i] == str2[i])
+            count += power(25 - i, 2);
+        else
+            break;
+    }
+    return abs(my_strcmp(str1, str2)) * (100000 - count);
+}
+
 SFind *special_find(Tree *tree, char *key, int *size)
 {
     SFind *arr = (SFind *)calloc((*size) + 1, sizeof(SFind));
+    int diff = 0, old_diff = INT_MAX;
     Node *node = tree->root;
-    int match = 0, old_match = 0;
     while (node)
     {
-        match = compare_string(key, node->key);
-        if (match < old_match)
-            break;
-        if (match == old_match)
+        diff = compare_string(key, node->key);
+        if ((diff < old_diff) * diff)
+        {
+            *size = 0;
+            old_diff = diff;
+        }
+        if (diff == old_diff)
+        {
+            arr = (SFind *)realloc(arr, (*size + 1) * sizeof(SFind));
+            arr[*size].key = node->key;
+            arr[*size].info = node->info;
             (*size)++;
+        }
+        if (node->left && node->right)
+        {
+            Node *additional = NULL;
+            if (compare_string(node->left->key, key) == compare_string(node->right->key, key))
+            {
+                arr = (SFind *)realloc(arr, (*size + 2) * sizeof(SFind));
+                additional = find_min(node->right);
+                arr[*size].key = additional->key;
+                arr[*size].info = additional->info;
+                additional = find_max(node->left);
+                arr[*size + 1].key = additional->key;
+                arr[*size + 1].info = additional->info;
+                (*size) += 2;
+                break;
+            }
+            if (compare_string(node->left->key, key) < compare_string(node->right->key, key))
+            {
+                additional = find_min(node->right);
+                if (compare_string(key, additional->key) <= diff)
+                {
+                    arr = (SFind *)realloc(arr, (*size + 1) * sizeof(SFind));
+                    arr[*size].key = additional->key;
+                    arr[*size].info = additional->info;
+                    (*size)++;
+                }
+                node = node->left;
+            }
+            else
+            {
+                additional = find_max(node->left);
+                if (compare_string(key, additional->key) <= diff)
+                {
+                    arr = (SFind *)realloc(arr, (*size + 1) * sizeof(SFind));
+                    arr[*size].key = additional->key;
+                    arr[*size].info = additional->info;
+                    (*size)++;
+                }
+                node = node->right;
+            }
+        }
         else
-            *size = 1;
-        old_match = match;
-        arr = (SFind *)realloc(arr, (*size) * sizeof(SFind));
-        arr[*size - 1].key = node->key;
-        arr[*size - 1].info = node->info;
-        node = (strcmp(key, node->key) < 0) ? node->left : node->right;
+        {
+            node = node->right ? node->right : (node->left ? node->left : NULL);
+            if (!node)
+                break;
+        }
     }
     return arr;
 }
