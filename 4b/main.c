@@ -15,7 +15,6 @@ int main()
         option = dialog();
     }
     printf("Done\n");
-    clear(tree->root);
-    free(tree);
+    delete_tree(tree);
     return 0;
 }

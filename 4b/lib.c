@@ -1,96 +1,66 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #include "lib.h"
 
-Tree *init()
-{
-    Tree *tree = (Tree *)calloc(1, sizeof(Tree));
-    return tree;
-}
+/*---Инициализация и очистка----------------------------*/
 
-void clear(Node *node)
-{
-    if (!node)
-        return;
-    clear(node->left);
-    clear(node->right);
-    free(node->key);
-    free(node);
-}
-
-Node *init_node(unsigned int key, unsigned int info)
+Node *init_node(unsigned int key, unsigned int info, Node* parent)
 {
     Node *elem = (Node *)calloc(1, sizeof(Node));
     elem->key = key;
     elem->info = info;
+    elem->parent = parent;
     return elem;
 }
 
-/*-------------------------------*/
-
-Node *find_cert_node(Node *node, unsigned int key, int pos)
+void remove_node(Node *node)
 {
     if (!node)
-        return NULL;
-    if (node->key == key)
-    {
-        Node *ptr = node;
-        while (ptr->kmates && pos--)
-            ptr = ptr->kmates;
-        return ptr;
-    }
-    if (key < node->key)
-        return find_cert_node(node->left, key, pos);
-    return find_cert_node(node->right, key, pos);
+        return;
+    remove_node(node->left);
+    remove_node(node->right);
+    free(node);
 }
 
-/*-------------------------------*/
-
-Node *find_branch(Node *node, unsigned int key)
+Tree *init_tree()
 {
-    if (!node)
-        return NULL;
-    if (node->key == key)
-        return node;
-    if (key < node->key)
-        return find_branch(node->left, key);
-    return find_branch(node->right, key);
+    Tree *tree = (Tree *)calloc(1, sizeof(Tree));
+    tree->alpha = 0.5;
+    return tree;
 }
 
-int print_array(Array *arr)
+
+void remove_tree(Tree* tree)
 {
-    if (!arr->size)
-    {
-        free(arr->ks);
-        free(arr);
-        return 1;
-    }
-    printf("Key: %u | Infos: ", arr->ks[0]->key);
-    for (int i = 0; i < arr->size; i++)
-        printf("%u ", arr->ks[i]->info);
-    free(arr->ks);
-    free(arr);
-    return 0;
+    remove_node(tree->root);
+    free(tree);
 }
 
-Array *finding(Tree *tree, unsigned int key)
+Array *set(int size)
 {
-    Array *arr = (Array *)calloc(1, sizeof(Array));
-    arr->ks = (Node **)calloc(1, sizeof(Node *));
-    Node *branch = find_branch(tree->root, key);
-    Node *ptr = branch;
-    while (ptr)
+    srand(time(NULL));
+    Array *arr = (Array *)malloc(sizeof(Array));
+    arr->size = size;
+    arr->ks = (Node **)calloc(size, sizeof(Node *));
+    for (int i = 0; i < size; i++)
     {
-        arr->ks[arr->size] = ptr;
-        (arr->size)++;
-        arr->ks = (Node **)realloc(arr->ks, (arr->size + 1) * sizeof(Node *));
-        ptr = ptr->kmates;
+        arr->ks[i] = (Node *)calloc(1, sizeof(Node));
+        arr->ks[i]->info = rand() % 1000000;
+        arr->ks[i]->key = rand() % 1000000;
     }
     return arr;
 }
 
-/*-------------------------------*/
+void remove_array(Array *arr)
+{
+    for (int i = 0; i < arr->size; i++)
+        //free(arr->ks[i]);
+    free(arr);
+}
+
+/*---Поиски нод----------------------------*/
 
 Node *find_min(Node *node)
 {
@@ -124,115 +94,126 @@ Node *find_deepest(Node *node)
     return node;
 }
 
-SFind *special_find(Tree *tree, char *key, int *size)
+Node *find_cert_node(Node *node, unsigned int key, int pos)
 {
-    /*SFind *arr = (SFind *)calloc((*size) + 1, sizeof(SFind));
-    int diff = 0, old_diff = INT_MAX;
-    Node *node = tree->root;
-    while (node)
+    if (!node)
+        return NULL;
+    if (node->key == key)
     {
-        diff = compare_string(key, node->key);
-        if ((diff < old_diff) * diff)
-        {
-            *size = 0;
-            old_diff = diff;
-        }
-        if (diff == old_diff)
-        {
-            arr = (SFind *)realloc(arr, (*size + 1) * sizeof(SFind));
-            arr[*size].key = node->key;
-            arr[*size].info = node->info;
-            (*size)++;
-        }
-        if (node->left && node->right)
-        {
-            Node *additional = NULL;
-            if (compare_string(node->left->key, key) == compare_string(node->right->key, key))
-            {
-                arr = (SFind *)realloc(arr, (*size + 2) * sizeof(SFind));
-                additional = find_min(node->right);
-                arr[*size].key = additional->key;
-                arr[*size].info = additional->info;
-                additional = find_max(node->left);
-                arr[*size + 1].key = additional->key;
-                arr[*size + 1].info = additional->info;
-                (*size) += 2;
-                break;
-            }
-            if (compare_string(node->left->key, key) < compare_string(node->right->key, key))
-            {
-                additional = find_min(node->right);
-                if (compare_string(key, additional->key) <= diff)
-                {
-                    arr = (SFind *)realloc(arr, (*size + 1) * sizeof(SFind));
-                    arr[*size].key = additional->key;
-                    arr[*size].info = additional->info;
-                    (*size)++;
-                }
-                node = node->left;
-            }
-            else
-            {
-                additional = find_max(node->left);
-                if (compare_string(key, additional->key) <= diff)
-                {
-                    arr = (SFind *)realloc(arr, (*size + 1) * sizeof(SFind));
-                    arr[*size].key = additional->key;
-                    arr[*size].info = additional->info;
-                    (*size)++;
-                }
-                node = node->right;
-            }
-        }
-        else
-        {
-            node = node->right ? node->right : (node->left ? node->left : NULL);
-            if (!node)
-                break;
-        }
+        Node *ptr = node;
+        while (ptr->kmates && pos--)
+            ptr = ptr->kmates;
+        return ptr;
     }
-    return arr;*/
+    if (key < node->key)
+        return find_cert_node(node->left, key, pos);
+    return find_cert_node(node->right, key, pos);
 }
 
-int insert(Tree *tree, char *key, unsigned int *info)
+/*---Поиск----------------------------*/
+
+Node *find_branch(Node *node, unsigned int key)
+{
+    if (!node)
+        return NULL;
+    if (node->key == key)
+        return node;
+    if (key < node->key)
+        return find_branch(node->left, key);
+    return find_branch(node->right, key);
+}
+
+Array *find_node(Tree *tree, unsigned int key)
+{
+    Array *arr = (Array *)calloc(1, sizeof(Array));
+    arr->ks = (Node **)calloc(1, sizeof(Node *));
+    Node *branch = find_branch(tree->root, key);
+    Node *ptr = branch;
+    while (ptr)
+    {
+        arr->ks[arr->size] = ptr;
+        (arr->size)++;
+        arr->ks = (Node **)realloc(arr->ks, (arr->size + 1) * sizeof(Node *));
+        ptr = ptr->kmates;
+    }
+    return arr;
+}
+
+/*---Калибровка----------------------------*/
+
+Node *flatten_tree(Node *node, Node *head)
+{
+    if (!node)
+        return head;
+    node->right = flatten_tree(node->right, head);
+    return flatten_tree(node->left, node);
+}
+
+Node *build_height_balanced_tree(int size, Node *head)
+{
+    if (size == 1)
+        return head;
+    else if (size == 2)
+    {
+        head->right->left = head;
+        return head->right;
+    }
+    Node *root = (build_height_balanced_tree((size - 1) / 2, head))->right;
+    Node *last = build_height_balanced_tree((size - 1) / 2, root->right);
+    root->left = head;
+    return last;
+}
+
+Node *rebuild_tree(int size, Node *scapegoat)
+{
+    Node *head = flatten_tree(scapegoat, NULL);
+    build_height_balanced_tree(size, head);
+    while (head->parent)
+        head = head->parent;
+    return head;
+}
+
+/*---Вставка----------------------------*/
+
+int insert_node(Tree *tree, unsigned int key, unsigned int info)
 {
     Node *node = tree->root, *par = NULL;
-    unsigned int old_info = 0;
-    int cmp;
     while (node)
     {
-        par = node;
-        cmp = strcmp(key, node->key);
-        if (cmp == 0)
+        if (node->key == key)
         {
-            old_info = node->info;
-            node->info = *info;
-            *info = old_info;
+            node->kmates = init_node(key, info, par);
+            node->kmates->left = node->left;
+            node->kmates->right = node->right;
             return 1;
         }
-        if (cmp < 0)
+        par = node;
+        if (key < node->key)
             node = node->left;
         else
             node = node->right;
     }
-    node = init_node(key, *info);
-    node->parent = par;
+    node = init_node(key, info, par);
     if (!par)
     {
         tree->root = node;
         return 0;
     }
-    cmp = strcmp(key, par->key);
-    if (cmp < 0)
+    if (key < par->key)
         par->left = node;
     else
         par->right = node;
+    
+    /*калибровка*/
+
     return 0;
 }
 
-int delete(Tree *tree, char *key)
+/*---Удаление----------------------------*/
+
+int delete_node(Tree *tree, unsigned int key, int pos)
 {
-    Node *x = find_node(tree->root, key), *y = NULL;
+    Node *x = find_cert_node(tree->root, key, pos), *y = NULL;
     Node *node = NULL, *par = NULL;
     if (!x)
         return 1;
@@ -255,20 +236,19 @@ int delete(Tree *tree, char *key)
         par->right = node;
     if (y != x)
     {
-        free(x->key);
         x->key = y->key;
         x->info = y->info;
-        free(y);
     }
-    else
-    {
-        free(y->key);
-        free(y);
-    }
+    free(y);
+
+    /*калибровка + много конфигураций удаляемого, приколы со списками*/
+
     return 0;
 }
 
-int search(Tree *tree, unsigned int begin, unsigned int end)
+/*---Обход----------------------------*/
+
+int passage(Tree *tree, unsigned int begin, unsigned int end)
 {
     if (!tree->root)
         return 0;
@@ -278,7 +258,6 @@ int search(Tree *tree, unsigned int begin, unsigned int end)
     {
         if (node->key <= end && node->key >= begin)
             printf("%s ", node->key);
-
         if (node == node->parent->left)
         {
             temp = find_deepest(node->parent->right);
@@ -294,17 +273,35 @@ int search(Tree *tree, unsigned int begin, unsigned int end)
     return 1;
 }
 
-void format_print(Node *node, int space)
+/*---Выводы----------------------------*/
+
+int print_array(Array *arr)
+{
+    if (!arr->size)
+    {
+        free(arr->ks);
+        free(arr);
+        return 1;
+    }
+    printf("Key: %u | Infos: ", arr->ks[0]->key);
+    for (int i = 0; i < arr->size; i++)
+        printf("%u ", arr->ks[i]->info);
+    free(arr->ks);
+    free(arr);
+    return 0;
+}
+
+void print_tree(Node *node, int space)
 {
     if (!node)
         return;
     space += 4;
-    format_print(node->right, space);
+    print_tree(node->right, space);
     printf("\n");
     for (int i = 4; i < space; i++)
         printf(" ");
     printf("%s %u\n", node->key);
-    format_print(node->left, space);
+    print_tree(node->left, space);
 }
 
 void graphviz(Node *node, FILE *fp, int *filler)
