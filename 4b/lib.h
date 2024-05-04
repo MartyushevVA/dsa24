@@ -35,7 +35,7 @@ Array *find_node(Tree *, unsigned int);
 int insert_node(Tree *, unsigned int, unsigned int);
 int delete_node(Tree *, unsigned int, int);
 int passage(Tree *, unsigned int *);
-// Array* sfind_node(Tree *, unsigned int);
+Array* sfind_node(Tree *, unsigned int);
 void print_tree(Node *, int);
 void graphviz(Node *, FILE *, int *);
 

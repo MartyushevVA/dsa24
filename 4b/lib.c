@@ -55,7 +55,6 @@ Array *set(int size)
 void remove_array(Array *arr)
 {
     for (int i = 0; i < arr->size; i++)
-        // free(arr->ks[i]);
         free(arr);
 }
 
@@ -178,7 +177,7 @@ int storeNodes(Node *node, Node **nodes, int index)
     return index;
 }
 
-Node *buildTree(Node **nodes, Node* parent, int start, int end)
+Node *buildTree(Node **nodes, Node *parent, int start, int end)
 {
     if (start > end)
         return NULL;
@@ -303,6 +302,62 @@ int passage(Tree *tree, unsigned int *border)
     traversed_print(tree->root, border);
     printf("\n");
     return 0;
+}
+
+/*---Специальный поиск----------------------------*/
+
+Node *sfind_branch(Node *node, unsigned int key)
+{
+    Node *mstone = find_branch(node, key);
+    if (mstone)
+    {
+        if (mstone->parent)
+        {
+            if (mstone == mstone->parent->left)
+                return mstone->right ? find_min(mstone->right) : mstone->parent;
+            if (find_min(mstone->right))
+                return find_min(mstone->right);
+            while (mstone->key <= key && mstone->parent)
+                mstone = mstone->parent;
+            if (mstone->key > key)
+                return mstone;
+            return NULL;
+        }
+        return mstone->right ? find_min(mstone->right) : NULL;
+    }
+    else
+    {
+        mstone = node;
+        Node *ptr;
+        while (mstone)
+        {
+            ptr = mstone;
+            mstone = key < mstone->key ? mstone->left : mstone->right;
+        }
+        if (ptr->right)
+            return ptr;
+        while (ptr->key <= key && ptr->parent)
+            ptr = ptr->parent;
+        if (ptr->key > key)
+            return ptr;
+        return NULL;
+    }
+}
+
+Array *sfind_node(Tree *tree, unsigned int key)
+{
+    Array *arr = (Array *)calloc(1, sizeof(Array));
+    arr->ks = (Node **)calloc(1, sizeof(Node *));
+    Node *branch = sfind_branch(tree->root, key);
+    Node *ptr = branch;
+    while (ptr)
+    {
+        arr->ks[arr->size] = ptr;
+        (arr->size)++;
+        arr->ks = (Node **)realloc(arr->ks, (arr->size + 1) * sizeof(Node *));
+        ptr = ptr->kmates;
+    }
+    return arr;
 }
 
 /*---Выводы----------------------------*/

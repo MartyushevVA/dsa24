@@ -30,8 +30,8 @@ int L_Find(Tree *tree, unsigned int key)
 
 int L_Special_Find(Tree *tree, unsigned int key)
 {
-    /*Array *arr = sfind_node(tree, key);
-    return print_array(arr);*/
+    Array *arr = sfind_node(tree, key);
+    return print_array(arr);
 }
 
 void L_Format_Print(Tree *tree)
