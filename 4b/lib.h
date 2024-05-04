@@ -9,7 +9,6 @@ typedef struct Node
 
 typedef struct Tree
 {
-    int size, max_size;
     float alpha;
     Node *root;
 } Tree;
@@ -26,20 +25,18 @@ typedef struct Elems
 } Elems;
 
 Tree *init_tree();
-void remove_tree(Tree*);
+void remove_tree(Tree *);
 void remove_node(Node *);
 Array *set(int);
 void remove_array(Array *);
 int print_array(Array *);
 
-
 Array *find_node(Tree *, unsigned int);
 int insert_node(Tree *, unsigned int, unsigned int);
 int delete_node(Tree *, unsigned int, int);
-int passage(Tree *, unsigned int, unsigned int);
-//Array* sfind_node(Tree *, unsigned int);
+int passage(Tree *, unsigned int *);
+// Array* sfind_node(Tree *, unsigned int);
 void print_tree(Node *, int);
 void graphviz(Node *, FILE *, int *);
-
 
 #endif

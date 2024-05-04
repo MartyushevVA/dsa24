@@ -6,7 +6,7 @@
 
 /*---Инициализация и очистка----------------------------*/
 
-Node *init_node(unsigned int key, unsigned int info, Node* parent)
+Node *init_node(unsigned int key, unsigned int info, Node *parent)
 {
     Node *elem = (Node *)calloc(1, sizeof(Node));
     elem->key = key;
@@ -27,12 +27,11 @@ void remove_node(Node *node)
 Tree *init_tree()
 {
     Tree *tree = (Tree *)calloc(1, sizeof(Tree));
-    tree->alpha = 0.5;
+    tree->alpha = 0.75;
     return tree;
 }
 
-
-void remove_tree(Tree* tree)
+void remove_tree(Tree *tree)
 {
     remove_node(tree->root);
     free(tree);
@@ -56,8 +55,8 @@ Array *set(int size)
 void remove_array(Array *arr)
 {
     for (int i = 0; i < arr->size; i++)
-        //free(arr->ks[i]);
-    free(arr);
+        // free(arr->ks[i]);
+        free(arr);
 }
 
 /*---Поиски нод----------------------------*/
@@ -141,36 +140,63 @@ Array *find_node(Tree *tree, unsigned int key)
 
 /*---Калибровка----------------------------*/
 
-Node *flatten_tree(Node *node, Node *head)
+int get_size(Node *node)
 {
     if (!node)
-        return head;
-    node->right = flatten_tree(node->right, head);
-    return flatten_tree(node->left, node);
+        return 0;
+    return get_size(node->left) + get_size(node->right) + 1;
 }
 
-Node *build_height_balanced_tree(int size, Node *head)
+Node *get_sibling(Node *node)
 {
-    if (size == 1)
-        return head;
-    else if (size == 2)
+    if (!node->parent)
+        return NULL;
+    return node == node->parent->left ? node->parent->right : node->parent->left;
+}
+
+Node *find_scapegoat(Tree *tree, Node *node)
+{
+    int size = 1, totalSize;
+    while (node->parent)
     {
-        head->right->left = head;
-        return head->right;
+        totalSize = 1 + size + get_size(get_sibling(node));
+        if (get_size(node) > tree->alpha * totalSize)
+            return node->parent;
+        node = node->parent;
+        size = totalSize;
     }
-    Node *root = (build_height_balanced_tree((size - 1) / 2, head))->right;
-    Node *last = build_height_balanced_tree((size - 1) / 2, root->right);
-    root->left = head;
-    return last;
+    return NULL;
 }
 
-Node *rebuild_tree(int size, Node *scapegoat)
+int storeNodes(Node *node, Node **nodes, int index)
 {
-    Node *head = flatten_tree(scapegoat, NULL);
-    build_height_balanced_tree(size, head);
-    while (head->parent)
-        head = head->parent;
-    return head;
+    if (!node)
+        return index;
+    index = storeNodes(node->left, nodes, index);
+    nodes[index] = node;
+    index = storeNodes(node->right, nodes, index + 1);
+    return index;
+}
+
+Node *buildTree(Node **nodes, Node* parent, int start, int end)
+{
+    if (start > end)
+        return NULL;
+    int mid = (start + end) / 2;
+    Node *node = nodes[mid];
+    node->left = buildTree(nodes, node, start, mid - 1);
+    node->right = buildTree(nodes, node, mid + 1, end);
+    node->parent = parent;
+    return node;
+}
+
+Node *rebuild(Node *scapegoat)
+{
+    Node **arr = (Node **)malloc(get_size(scapegoat) * sizeof(Node *));
+    int count = storeNodes(scapegoat, arr, 0);
+    Node *node = buildTree(arr, NULL, 0, count - 1);
+    free(arr);
+    return node;
 }
 
 /*---Вставка----------------------------*/
@@ -183,8 +209,6 @@ int insert_node(Tree *tree, unsigned int key, unsigned int info)
         if (node->key == key)
         {
             node->kmates = init_node(key, info, par);
-            node->kmates->left = node->left;
-            node->kmates->right = node->right;
             return 1;
         }
         par = node;
@@ -203,9 +227,22 @@ int insert_node(Tree *tree, unsigned int key, unsigned int info)
         par->left = node;
     else
         par->right = node;
-    
-    /*калибровка*/
-
+    node = find_scapegoat(tree, node);
+    par = node ? node->parent : NULL;
+    if (node)
+    {
+        Node *subtree = rebuild(node);
+        if (!par)
+        {
+            tree->root = subtree;
+            subtree->parent = NULL;
+        }
+        else
+        {
+            subtree->parent = par;
+            (node == par->left) ? (par->left = subtree) : (par->right = subtree);
+        }
+    }
     return 0;
 }
 
@@ -248,29 +285,24 @@ int delete_node(Tree *tree, unsigned int key, int pos)
 
 /*---Обход----------------------------*/
 
-int passage(Tree *tree, unsigned int begin, unsigned int end)
+void traversed_print(Node *node, unsigned int *border)
+{
+    if (!node)
+        return;
+    traversed_print(node->left, border);
+    traversed_print(node->right, border);
+    if ((border[0] <= node->key) && (node->key <= border[1]))
+        printf("%u ", node->key);
+}
+
+int passage(Tree *tree, unsigned int *border)
 {
     if (!tree->root)
-        return 0;
-    Node *node = find_deepest(tree->root);
-    Node *temp = NULL;
-    while (node != tree->root)
-    {
-        if (node->key <= end && node->key >= begin)
-            printf("%s ", node->key);
-        if (node == node->parent->left)
-        {
-            temp = find_deepest(node->parent->right);
-            if (temp)
-                node = temp;
-            else
-                node = node->parent;
-        }
-        else
-            node = node->parent;
-    }
+        return 1;
+    printf("Keys: ");
+    traversed_print(tree->root, border);
     printf("\n");
-    return 1;
+    return 0;
 }
 
 /*---Выводы----------------------------*/
@@ -300,7 +332,7 @@ void print_tree(Node *node, int space)
     printf("\n");
     for (int i = 4; i < space; i++)
         printf(" ");
-    printf("%s %u\n", node->key);
+    printf("%u\n", node->key);
     print_tree(node->left, space);
 }
 
@@ -309,19 +341,19 @@ void graphviz(Node *node, FILE *fp, int *filler)
     if (!node)
         return;
     (*filler)++;
-    fprintf(fp, "    %s;\n", node->key);
+    fprintf(fp, "    %u;\n", node->key);
     if (node->left)
     {
-        fprintf(fp, "    %s -> %s;\n", node->key, node->left->key);
+        fprintf(fp, "    %u -> %u;\n", node->key, node->left->key);
         if (!node->right)
-            fprintf(fp, "    %d [style=invis];\n    %s -> %d [style=invis];\n", *filler, node->key, *filler);
+            fprintf(fp, "    %d [style=invis];\n    %u -> %d [style=invis];\n", *filler, node->key, *filler);
         graphviz(node->left, fp, filler);
     }
     if (node->right)
     {
         if (!node->left)
-            fprintf(fp, "    %d [style=invis];\n    %s -> %d [style=invis];\n", *filler, node->key, *filler);
-        fprintf(fp, "    %s -> %s;\n", node->key, node->right->key);
+            fprintf(fp, "    %d [style=invis];\n    %u -> %d [style=invis];\n", *filler, node->key, *filler);
+        fprintf(fp, "    %u -> %u;\n", node->key, node->right->key);
         graphviz(node->right, fp, filler);
     }
 }

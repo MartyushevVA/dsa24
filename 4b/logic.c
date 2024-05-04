@@ -7,7 +7,9 @@
 
 int L_Add(Tree *tree, unsigned int key, unsigned int info)
 {
-    return insert_node(tree, key, info);
+    int n = insert_node(tree, key, info);
+    L_GraphViz_Print(tree);
+    return n;
 }
 
 int L_Delete(Tree *tree, unsigned int key, int pos)
@@ -15,9 +17,9 @@ int L_Delete(Tree *tree, unsigned int key, int pos)
     return delete_node(tree, key, pos);
 }
 
-int L_Search(Tree *tree, unsigned int key_1, unsigned int key_2)
+int L_Passage(Tree *tree, unsigned int *border)
 {
-    return passage(tree, key_1, key_2);
+    return passage(tree, border);
 }
 
 int L_Find(Tree *tree, unsigned int key)
@@ -28,8 +30,8 @@ int L_Find(Tree *tree, unsigned int key)
 
 int L_Special_Find(Tree *tree, unsigned int key)
 {
-    Array *arr = sfind_node(tree, key);
-    return print_array(arr);
+    /*Array *arr = sfind_node(tree, key);
+    return print_array(arr);*/
 }
 
 void L_Format_Print(Tree *tree)
@@ -58,7 +60,7 @@ int L_Import(Tree *tree, char *fname)
         return 1;
     remove_node(tree->root);
     unsigned int buf[2];
-    while (fscanf(file, "%u %u", buf[0], buf[1]) == 2)
+    while (fscanf(file, "%u\n%u", &buf[0], &buf[1]) == 2)
         insert_node(tree, buf[0], buf[1]);
     fclose(file);
     if (!tree->root)
@@ -76,7 +78,7 @@ int L_Timing()
         double insertions = 0.0, findings = 0.0, deletions = 0.0;
         for (int j = 0; j < num_of_res; j++)
         {
-            Tree *tree = init();
+            Tree *tree = init_tree();
             printf(".");
             Array *arr = set(num_of_elemts);
             Array *addit = set(capacity);
@@ -97,8 +99,8 @@ int L_Timing()
                 delete_node(tree, addit->ks[i]->key, -1);
             end = clock();
             deletions += (double)(end - begin) / (CLOCKS_PER_SEC / 1000);
-            remove_array(addit, capacity);
-            remove_array(arr, num_of_elemts);
+            remove_array(addit);
+            remove_array(arr);
             remove_tree(tree);
         }
         insertions /= num_of_res;

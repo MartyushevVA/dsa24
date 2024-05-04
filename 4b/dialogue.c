@@ -6,7 +6,7 @@
 
 int dialog()
 {
-    char *msgs[] = {"0. Quit\n", "1. Add\n", "2. Delete\n", "3. Search\n", "4. Find\n", "5. Special find\n", "6. Format print\n", "7. GraphViz print\n", "8. Import\n", "9. Timing\n"};
+    char *msgs[] = {"0. Quit\n", "1. Add\n", "2. Delete\n", "3. Passage (LRR)\n", "4. Find\n", "5. Special find\n", "6. Format print\n", "7. GraphViz print\n", "8. Import\n", "9. Timing\n"};
     char *errmsg = "";
     int N = 10;
     int choice = 0;
@@ -60,21 +60,22 @@ int D_Delete(Tree *tree)
     return 1;
 }
 
-int D_Search(Tree *tree)
+int D_Passage(Tree *tree)
 {
     char *errmsgs[] = {"| Ok", "| Nothing"};
     int n;
-    unsigned int key_1, key_2;
+    unsigned int *border = (unsigned int *)malloc(2 * sizeof(unsigned int));
     printf("Enter first key: ");
-    n = u_input(&key_1);
+    n = u_input(border);
     if (n)
         return 0;
     printf("Enter second key: ");
-    n = u_input(&key_2);
+    n = u_input(&(border[1]));
     if (n)
         return 0;
-    n = L_Search(tree, key_1, key_2);
+    n = L_Passage(tree, border);
     printf("%s\n", errmsgs[n]);
+    free(border);
     return 1;
 }
 
@@ -139,7 +140,7 @@ int D_Import(Tree *tree)
     return 1;
 }
 
-int D_Timing(Tree* tree)
+int D_Timing(Tree *tree)
 {
     return L_Timing();
 }

@@ -9,7 +9,7 @@ char *readline(char *);
 int dialog();
 int D_Add(Tree *);
 int D_Delete(Tree *);
-int D_Search(Tree *);
+int D_Passage(Tree *);
 int D_Find(Tree *);
 int D_Special_Find(Tree *);
 int D_Format_Print(Tree *);

@@ -4,7 +4,7 @@
 
 int L_Add(Tree *, unsigned int, unsigned int);
 int L_Delete(Tree *, unsigned int, int);
-int L_Search(Tree *, unsigned int, unsigned int);
+int L_Passage(Tree *, unsigned int*);
 int L_Find(Tree *, unsigned int);
 int L_Special_Find(Tree *, unsigned int);
 void L_Format_Print(Tree *);

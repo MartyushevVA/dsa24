@@ -4,9 +4,9 @@
 
 int main()
 {
-    int (*fptr[])(Tree *) = {NULL, D_Add, D_Delete, D_Search, D_Find, D_Special_Find, D_Format_Print, D_GraphViz_Print, D_Import, D_Timing};
+    int (*fptr[])(Tree *) = {NULL, D_Add, D_Delete, D_Passage, D_Find, D_Special_Find, D_Format_Print, D_GraphViz_Print, D_Import, D_Timing};
     int option;
-    Tree *tree = init();
+    Tree *tree = init_tree();
     option = dialog();
     while (option)
     {
@@ -15,6 +15,6 @@ int main()
         option = dialog();
     }
     printf("Done\n");
-    delete_tree(tree);
+    remove_tree(tree);
     return 0;
 }
