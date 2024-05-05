@@ -6,7 +6,7 @@
 
 int dialog()
 {
-    char *msgs[] = {"0. Quit\n", "1. Add\n", "2. Delete\n", "3. Passage (LRR)\n", "4. Find\n", "5. Special find\n", "6. Format print\n", "7. GraphViz print\n", "8. Import\n", "9. Timing\n"};
+    char *msgs[] = {"0. Quit\n", "1. Add\n", "2. Delete\n", "3. Passage (LRR)\n", "4. Search\n", "5. Special search\n", "6. Format print\n", "7. GraphViz print\n", "8. Import\n", "9. Timing\n"};
     char *errmsg = "";
     int N = 10;
     int choice = 0;
@@ -44,7 +44,7 @@ int D_Add(Tree *tree)
 
 int D_Delete(Tree *tree)
 {
-    char *errmsgs[] = {"| Ok", "| Key wasn't found", "| There isn't chosen number"};
+    char *errmsgs[] = {"| Ok", "| Key wasn't found", "| One of inner elems was deleted"};
     unsigned int key;
     int n, pos;
     printf("Enter key: ");
