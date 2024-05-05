@@ -21,8 +21,8 @@ void remove_node(Node *node)
         return;
     remove_node(node->left);
     remove_node(node->right);
-    Node* ptr = node;
-    while(node)
+    Node *ptr = node;
+    while (node)
     {
         ptr = node;
         node = node->kmates;
@@ -33,7 +33,7 @@ void remove_node(Node *node)
 Tree *init_tree()
 {
     Tree *tree = (Tree *)calloc(1, sizeof(Tree));
-    tree->alpha = 0.75;
+    tree->alpha = 0.8;
     return tree;
 }
 
@@ -52,8 +52,8 @@ Array *set(int size)
     for (int i = 0; i < size; i++)
     {
         arr->ks[i] = (Node *)calloc(1, sizeof(Node));
-        arr->ks[i]->info = rand() % (size/10);
-        arr->ks[i]->key = rand() % (size*3/2);
+        arr->ks[i]->info = 1;
+        arr->ks[i]->key = rand() % size;
     }
     return arr;
 }
@@ -99,6 +99,20 @@ Array *find_node(Tree *tree, unsigned int key)
         (arr->size)++;
         arr->ks = (Node **)realloc(arr->ks, (arr->size + 1) * sizeof(Node *));
         ptr = ptr->kmates;
+    }
+    return arr;
+}
+
+unsigned int *get_branch_info(Tree *tree, unsigned int key, int *size)
+{
+    unsigned int *arr = (unsigned int *)malloc(sizeof(unsigned int));
+    Node *branch = find_branch(tree->root, key);
+    while (branch)
+    {
+        (*size)++;
+        arr = (unsigned int *)realloc(arr, (*size) * sizeof(unsigned int));
+        arr[(*size) - 1] = branch->info;
+        branch = branch->kmates;
     }
     return arr;
 }
@@ -173,6 +187,8 @@ int insert_node(Tree *tree, unsigned int key, unsigned int info)
     {
         if (node->key == key)
         {
+            while (node->kmates)
+                node = node->kmates;
             node->kmates = init_node(key, info, NULL);
             return 1;
         }
@@ -245,7 +261,7 @@ int delete_node(Tree *tree, unsigned int key, int pos)
     Node *node = NULL, *par = NULL, *y = NULL;
     if (!x)
         return 1;
-    
+
     if (prev)
     {
         prev->kmates = x->kmates;

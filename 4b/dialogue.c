@@ -6,9 +6,9 @@
 
 int dialog()
 {
-    char *msgs[] = {"0. Quit\n", "1. Add\n", "2. Delete\n", "3. Passage (LRR)\n", "4. Search\n", "5. Special search\n", "6. Format print\n", "7. GraphViz print\n", "8. Import\n", "9. Timing\n"};
+    char *msgs[] = {"0. Quit\n", "1. Add\n", "2. Delete\n", "3. Passage (LRR)\n", "4. Search\n", "5. Special search\n", "6. Format print\n", "7. GraphViz print\n", "8. Import\n", "9. Timing\n", "10. Add Task\n"};
     char *errmsg = "";
-    int N = 10;
+    int N = 11;
     int choice = 0;
     do
     {
@@ -143,4 +143,30 @@ int D_Import(Tree *tree)
 int D_Timing(Tree *tree)
 {
     return L_Timing();
+}
+
+int D_Add_Task(Tree *tree)
+{
+    char *errmsgs[] = {"Loaded", "File doesn't exist", "File empty"};
+    char *fname = NULL;
+    int check = 0;
+    int n;
+    do
+    {
+        printf("Enter .txt file name: ");
+        fname = readline("");
+        if (!fname)
+            return 0;
+        int size = (int)strlen(fname);
+        if ((int)strlen(fname) > 3)
+            check = (fname[size - 4] == '.' && fname[size - 3] == 't' && fname[size - 2] == 'x' && fname[size - 1] == 't');
+    } while (!check);
+    unsigned int key;
+    printf("Enter key: ");
+    n = u_input(&key);
+    if (n)
+        return 0;
+    n = L_Add_Task(tree, fname, key);
+    printf("%s\n", errmsgs[n]);
+    return 1;
 }

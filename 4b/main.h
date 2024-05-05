@@ -2,10 +2,6 @@
 #define MAIN_H
 #include "lib.h"
 
-int input(int *);
-int u_input(unsigned int *);
-char *readline(char *);
-
 int dialog();
 int D_Add(Tree *);
 int D_Delete(Tree *);
@@ -16,5 +12,6 @@ int D_Format_Print(Tree *);
 int D_GraphViz_Print(Tree *);
 int D_Import(Tree *);
 int D_Timing(Tree *);
+int D_Add_Task(Tree *);
 
 #endif

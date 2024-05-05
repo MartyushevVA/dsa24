@@ -36,4 +36,6 @@ int passage(Tree *, unsigned int *);
 void print_tree(Node *, int);
 void graphviz(Node *, FILE *, int *);
 
+unsigned int* get_branch_info(Tree*, unsigned int, int*);
+
 #endif

@@ -74,14 +74,14 @@ int L_Import(Tree *tree, char *fname)
 int L_Timing()
 {
     clock_t begin, end;
-    const int MAX_NUM = 2000001, MIN_NUM = 100000, step = 100000, capacity = 100000;
+    const int MAX_NUM = 1000001, MIN_NUM = 100000, step = 100000, capacity = 20000;
     const int num_of_res = 25;
     for (int num_of_elemts = MIN_NUM; num_of_elemts < MAX_NUM; num_of_elemts += step)
     {
-        double insertions = 0.0, findings = 0.0, deletions = 0.0;
         Tree *tree = init_tree();
+        double insertions = 0.0, findings = 0.0, deletions = 0.0;
         Array *arr = set(num_of_elemts);
-        for (int i = 0; i < num_of_elemts; i++)
+        for (int i = 0; i < step; i++)
             insert_node(tree, arr->ks[i]->key, arr->ks[i]->info);
         remove_array(arr);
         for (int j = 0; j < num_of_res; j++)
@@ -90,7 +90,7 @@ int L_Timing()
             Array *addit = set(capacity);
             begin = clock();
             for (int i = 0; i < capacity; i++)
-                insert_node(tree, addit->ks[i]->key, addit->ks[i]->info);
+                insert_node(tree, addit->ks[i]->key, 1);
             end = clock();
             insertions += (double)(end - begin) / (CLOCKS_PER_SEC / 1000);
             begin = clock();
@@ -109,7 +109,37 @@ int L_Timing()
         insertions /= num_of_res;
         findings /= num_of_res;
         deletions /= num_of_res;
-        printf("\nNum of elements: %d\n Time on insert(): %f ms.\n Time on find(): %f ms.\n Time on delete(): %f ms.\n", num_of_elemts, insertions/num_of_elemts, findings/num_of_elemts, deletions/num_of_elemts);
+        printf("\nNum of elements: %d\n Time on insert(): %f ms.\n Time on find(): %f ms.\n Time on delete(): %f ms.\n", num_of_elemts, insertions / num_of_elemts, findings / num_of_elemts, deletions / num_of_elemts);
     }
+    return 0;
+}
+
+int L_Add_Task(Tree *tree, char *fname, unsigned int key)
+{
+    FILE *file = fopen(fname, "r");
+    if (!file)
+        return 1;
+    unsigned int num_of_string = 0;
+    char line[102400];
+    while (fgets(line, sizeof(line), file))
+    {
+        char *token = strtok(line, ", ");
+        while (token)
+        {
+            insert_node(tree, atoi(token), num_of_string);
+            token = strtok(NULL, ", ");
+        }
+        num_of_string++;
+    }
+    int size = 0;
+    unsigned int *arr = get_branch_info(tree, key, &size);
+    printf("Rows which contains the key: ");
+    for (int i = 0; i < size; i++)
+        printf("%u ", arr[i]);
+    printf("\n");
+    fclose(file);
+    free(arr);
+    if (!tree->root)
+        return 2;
     return 0;
 }
