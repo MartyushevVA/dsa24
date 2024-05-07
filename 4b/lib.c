@@ -28,12 +28,13 @@ void remove_node(Node *node)
         node = node->kmates;
         free(ptr);
     }
+    return;
 }
 
 Tree *init_tree()
 {
     Tree *tree = (Tree *)calloc(1, sizeof(Tree));
-    tree->alpha = 0.8;
+    tree->alpha = 0.60;
     return tree;
 }
 
@@ -135,14 +136,13 @@ Node *get_sibling(Node *node)
 
 Node *find_scapegoat(Tree *tree, Node *node)
 {
-    int size = 1, totalSize;
+    int size = 1;
     while (node->parent)
     {
-        totalSize = 1 + size + get_size(get_sibling(node));
-        if (get_size(node) > tree->alpha * totalSize)
+        size = 1 + size + get_size(get_sibling(node));
+        if (get_size(node) > tree->alpha * size)
             return node->parent;
         node = node->parent;
-        size = totalSize;
     }
     return NULL;
 }
@@ -261,7 +261,6 @@ int delete_node(Tree *tree, unsigned int key, int pos)
     Node *node = NULL, *par = NULL, *y = NULL;
     if (!x)
         return 1;
-
     if (prev)
     {
         prev->kmates = x->kmates;
@@ -270,18 +269,10 @@ int delete_node(Tree *tree, unsigned int key, int pos)
     }
     if (!prev && x->kmates)
     {
-        x->kmates->parent = x->parent;
-        x->kmates->right = x->right;
-        x->kmates->left = x->left;
-        if (x->parent)
-            (x == x->parent->left) ? (x->parent->left = x->kmates) : (x->parent->right = x->kmates);
-        else
-            tree->root = x->kmates;
-        if (x->left)
-            x->left->parent = x->kmates;
-        if (x->right)
-            x->right->parent = x->kmates;
-        free(x);
+        Node* ptr = x->kmates;
+        x->info = ptr->info;
+        x->kmates = ptr->kmates;
+        free(ptr);
         return 2;
     }
     if (!x->left || !x->right)
@@ -307,8 +298,13 @@ int delete_node(Tree *tree, unsigned int key, int pos)
         x->info = y->info;
     }
     free(y);
-    if (tree->weight < tree->alpha * tree->maxweight)
-        rebuild(tree->root);
+    (tree->weight)--;
+    if (tree->weight < tree->alpha * tree->maxweight && tree->weight)
+    {
+        Node *subtree = rebuild(tree->root);
+        tree->root = subtree;
+        subtree->parent = NULL;
+    }
     return 0;
 }
 

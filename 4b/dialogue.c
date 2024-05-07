@@ -128,6 +128,8 @@ int D_Import(Tree *tree)
     do
     {
         printf("Enter .txt file name: ");
+        if (fname)
+            free(fname);
         fname = readline("");
         if (!fname)
             return 0;
@@ -147,13 +149,15 @@ int D_Timing(Tree *tree)
 
 int D_Add_Task(Tree *tree)
 {
-    char *errmsgs[] = {"Loaded", "File doesn't exist", "File empty"};
+    char *errmsgs[] = {"Loaded", "File doesn't exist"};
     char *fname = NULL;
     int check = 0;
     int n;
     do
     {
         printf("Enter .txt file name: ");
+        if (fname)
+            free(fname);
         fname = readline("");
         if (!fname)
             return 0;
@@ -166,7 +170,7 @@ int D_Add_Task(Tree *tree)
     n = u_input(&key);
     if (n)
         return 0;
-    n = L_Add_Task(tree, fname, key);
+    n = L_Add_Task(fname, key);
     printf("%s\n", errmsgs[n]);
     return 1;
 }

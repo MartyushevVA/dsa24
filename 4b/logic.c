@@ -60,7 +60,7 @@ int L_Import(Tree *tree, char *fname)
     free(fname);
     if (!file)
         return 1;
-    remove_node(tree->root);
+    //remove_node(tree->root);
     unsigned int buf[2];
     while (fscanf(file, "%u\n%u", &buf[0], &buf[1]) == 2)
         insert_node(tree, buf[0], buf[1]);
@@ -114,13 +114,15 @@ int L_Timing()
     return 0;
 }
 
-int L_Add_Task(Tree *tree, char *fname, unsigned int key)
+int L_Add_Task(char *fname, unsigned int key)
 {
     FILE *file = fopen(fname, "r");
+    free(fname);
     if (!file)
         return 1;
+    Tree* tree = init_tree();
     unsigned int num_of_string = 0;
-    char line[102400];
+    char line[1024];
     while (fgets(line, sizeof(line), file))
     {
         char *token = strtok(line, ", ");
@@ -131,15 +133,14 @@ int L_Add_Task(Tree *tree, char *fname, unsigned int key)
         }
         num_of_string++;
     }
+    fclose(file);
     int size = 0;
     unsigned int *arr = get_branch_info(tree, key, &size);
-    printf("Rows which contains the key: ");
+    printf("Found in rows: ");
     for (int i = 0; i < size; i++)
         printf("%u ", arr[i]);
     printf("\n");
-    fclose(file);
     free(arr);
-    if (!tree->root)
-        return 2;
+    remove_tree(tree);
     return 0;
 }
