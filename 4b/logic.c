@@ -8,14 +8,14 @@
 int L_Add(Tree *tree, unsigned int key, unsigned int info)
 {
     int n = insert_node(tree, key, info);
-    L_GraphViz_Print(tree);
+    // L_GraphViz_Print(tree);
     return n;
 }
 
 int L_Delete(Tree *tree, unsigned int key, int pos)
 {
     int n = delete_node(tree, key, pos);
-    L_GraphViz_Print(tree);
+    // L_GraphViz_Print(tree);
     return n;
 }
 
@@ -24,15 +24,25 @@ int L_Passage(Tree *tree, unsigned int *border)
     return passage(tree, border);
 }
 
-int L_Find(Tree *tree, unsigned int key)
+int L_Find(Tree *tree, unsigned int key, int mode)
 {
     Array *arr = find_node(tree, key);
+    if (mode)
+    {
+        remove_array(arr);
+        return 0;
+    }
     return print_array(arr);
 }
 
-int L_Special_Find(Tree *tree, unsigned int key)
+int L_Special_Find(Tree *tree, unsigned int key, int mode)
 {
     Array *arr = sfind_node(tree, key);
+    if (mode)
+    {
+        remove_array(arr);
+        return 0;
+    }
     return print_array(arr);
 }
 
@@ -60,7 +70,7 @@ int L_Import(Tree *tree, char *fname)
     free(fname);
     if (!file)
         return 1;
-    //remove_node(tree->root);
+    // remove_node(tree->root);
     unsigned int buf[2];
     while (fscanf(file, "%u\n%u", &buf[0], &buf[1]) == 2)
         insert_node(tree, buf[0], buf[1]);
@@ -74,43 +84,53 @@ int L_Import(Tree *tree, char *fname)
 int L_Timing()
 {
     clock_t begin, end;
-    const int MAX_NUM = 1000001, MIN_NUM = 100000, step = 100000, capacity = 20000;
-    const int num_of_res = 25;
+    FILE *file = fopen("timing.txt", "w");
+    const int MAX_NUM = 2000001, MIN_NUM = 100000, step = 100000, capacity = 100000;
+    const int num_of_res = 15;
     for (int num_of_elemts = MIN_NUM; num_of_elemts < MAX_NUM; num_of_elemts += step)
     {
         Tree *tree = init_tree();
-        double insertions = 0.0, findings = 0.0, deletions = 0.0;
+        double insertions = 0.0, findings = 0.0, deletions = 0.0, sfindings = 0.0;
         Array *arr = set(num_of_elemts);
         for (int i = 0; i < step; i++)
             insert_node(tree, arr->ks[i]->key, arr->ks[i]->info);
         remove_array(arr);
         for (int j = 0; j < num_of_res; j++)
         {
-            printf(".");
+            // printf(".");
             Array *addit = set(capacity);
             begin = clock();
             for (int i = 0; i < capacity; i++)
-                insert_node(tree, addit->ks[i]->key, 1);
+                L_Add(tree, addit->ks[i]->key, 1);
             end = clock();
             insertions += (double)(end - begin) / (CLOCKS_PER_SEC / 1000);
             begin = clock();
             for (int i = 0; i < capacity; i++)
-                find_node(tree, addit->ks[i]->key);
+                L_Find(tree, addit->ks[i]->key, 1);
             end = clock();
             findings += (double)(end - begin) / (CLOCKS_PER_SEC / 1000);
             begin = clock();
             for (int i = 0; i < capacity; i++)
-                delete_node(tree, addit->ks[i]->key, 0);
+                L_Delete(tree, addit->ks[i]->key, 0);
             end = clock();
             deletions += (double)(end - begin) / (CLOCKS_PER_SEC / 1000);
+            begin = clock();
+            for (int i = 0; i < capacity; i++)
+                L_Special_Find(tree, addit->ks[i]->key, 1);
+            end = clock();
+            sfindings += (double)(end - begin) / (CLOCKS_PER_SEC / 1000);
             remove_array(addit);
         }
         remove_tree(tree);
         insertions /= num_of_res;
         findings /= num_of_res;
         deletions /= num_of_res;
-        printf("\nNum of elements: %d\n Time on insert(): %f ms.\n Time on find(): %f ms.\n Time on delete(): %f ms.\n", num_of_elemts, insertions / num_of_elemts, findings / num_of_elemts, deletions / num_of_elemts);
+        sfindings /= num_of_res;
+        // printf("\nNum of elements: %d\n Time on insert(): %f ms.\n Time on find(): %f ms.\n Time on delete(): %f ms.\n", num_of_elemts, insertions / num_of_elemts, findings / num_of_elemts, deletions / num_of_elemts);
+        printf(".");
+        fprintf(file, "%d %f %f %f %f\n", num_of_elemts, insertions / num_of_elemts, findings / num_of_elemts, deletions / num_of_elemts, sfindings / num_of_elemts);
     }
+    fclose(file);
     return 0;
 }
 
@@ -120,7 +140,7 @@ int L_Add_Task(char *fname, unsigned int key)
     free(fname);
     if (!file)
         return 1;
-    Tree* tree = init_tree();
+    Tree *tree = init_tree();
     unsigned int num_of_string = 0;
     char line[1024];
     while (fgets(line, sizeof(line), file))
@@ -137,8 +157,13 @@ int L_Add_Task(char *fname, unsigned int key)
     int size = 0;
     unsigned int *arr = get_branch_info(tree, key, &size);
     printf("Found in rows: ");
+    unsigned int last = 9999;
     for (int i = 0; i < size; i++)
-        printf("%u ", arr[i]);
+        if (arr[i] != last)
+        {
+            last = arr[i];
+            printf("%u ", arr[i]);
+        }
     printf("\n");
     free(arr);
     remove_tree(tree);

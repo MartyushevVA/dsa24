@@ -88,7 +88,7 @@ int D_Find(Tree *tree)
     n = u_input(&key);
     if (n)
         return 0;
-    n = L_Find(tree, key);
+    n = L_Find(tree, key, 0);
     printf("%s\n", errmsgs[n]);
     return 1;
 }
@@ -102,7 +102,7 @@ int D_Special_Find(Tree *tree)
     n = u_input(&key);
     if (n)
         return 0;
-    n = L_Special_Find(tree, key);
+    n = L_Special_Find(tree, key, 0);
     printf("%s\n", errmsgs[n]);
     return 1;
 }

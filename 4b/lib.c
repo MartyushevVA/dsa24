@@ -34,7 +34,7 @@ void remove_node(Node *node)
 Tree *init_tree()
 {
     Tree *tree = (Tree *)calloc(1, sizeof(Tree));
-    tree->alpha = 0.60;
+    tree->alpha = 0.5;
     return tree;
 }
 
@@ -61,6 +61,7 @@ Array *set(int size)
 
 void remove_array(Array *arr)
 {
+    free(arr->ks);
     free(arr);
 }
 
@@ -136,13 +137,14 @@ Node *get_sibling(Node *node)
 
 Node *find_scapegoat(Tree *tree, Node *node)
 {
-    int size = 1;
+    int size = 1, par_size = 0;
     while (node->parent)
     {
-        size = 1 + size + get_size(get_sibling(node));
-        if (get_size(node) > tree->alpha * size)
+        par_size = 1 + size + get_size(get_sibling(node));
+        if (size > tree->alpha * par_size)
             return node->parent;
         node = node->parent;
+        size = par_size;
     }
     return NULL;
 }
@@ -180,9 +182,31 @@ Node *rebuild(Node *scapegoat)
 
 /*---Insertion----------------------------*/
 
+double log(double x)
+{
+    double result = 0.0;
+    double term = (x - 1) / (x + 1);
+    double term_squared = term * term;
+    double numerator = term;
+    int n = 1;
+    while (n < 100)
+    {
+        result += numerator / n;
+        numerator *= term_squared;
+        n += 2;
+    }
+    return 2 * result;
+}
+
+double randlog(double x, double a)
+{
+    return log(x) / log(a);
+}
+
 int insert_node(Tree *tree, unsigned int key, unsigned int info)
 {
     Node *node = tree->root, *par = NULL;
+    int height = 0;
     while (node)
     {
         if (node->key == key)
@@ -197,6 +221,7 @@ int insert_node(Tree *tree, unsigned int key, unsigned int info)
             node = node->left;
         else
             node = node->right;
+        height++;
     }
     node = init_node(key, info, par);
     if (!par)
@@ -212,22 +237,25 @@ int insert_node(Tree *tree, unsigned int key, unsigned int info)
         par->right = node;
     (tree->weight)++;
     tree->maxweight = tree->weight > tree->maxweight ? tree->weight : tree->maxweight;
-    node = find_scapegoat(tree, node);
-    par = node ? node->parent : NULL;
-    if (node)
+    if (height > randlog(tree->weight, 1 / tree->alpha))
     {
-        Node *subtree = rebuild(node);
-        if (!par)
+        node = find_scapegoat(tree, node);
+        par = node ? node->parent : NULL;
+        if (node)
         {
-            tree->root = subtree;
-            subtree->parent = NULL;
+            Node *subtree = rebuild(node);
+            if (!par)
+            {
+                tree->root = subtree;
+                subtree->parent = NULL;
+            }
+            else
+            {
+                subtree->parent = par;
+                (node == par->left) ? (par->left = subtree) : (par->right = subtree);
+            }
+            tree->maxweight = tree->weight;
         }
-        else
-        {
-            subtree->parent = par;
-            (node == par->left) ? (par->left = subtree) : (par->right = subtree);
-        }
-        tree->maxweight = tree->weight;
     }
     return 0;
 }
@@ -254,6 +282,13 @@ Node *find_cert_node(Node *prev, Node *node, unsigned int key, int pos)
     return find_cert_node(prev, node->right, key, pos);
 }
 
+int check_balance(Tree *tree)
+{
+    if (!tree->root)
+        return 1;
+    return get_size(tree->root->left) < tree->alpha * get_size(tree->root) && tree->root->left;
+}
+
 int delete_node(Tree *tree, unsigned int key, int pos)
 {
     Node *prev = NULL;
@@ -269,7 +304,7 @@ int delete_node(Tree *tree, unsigned int key, int pos)
     }
     if (!prev && x->kmates)
     {
-        Node* ptr = x->kmates;
+        Node *ptr = x->kmates;
         x->info = ptr->info;
         x->kmates = ptr->kmates;
         free(ptr);
@@ -296,14 +331,17 @@ int delete_node(Tree *tree, unsigned int key, int pos)
     {
         x->key = y->key;
         x->info = y->info;
+        x->kmates = y->kmates;
     }
     free(y);
     (tree->weight)--;
-    if (tree->weight < tree->alpha * tree->maxweight && tree->weight)
+    //if ((tree->weight < tree->alpha * tree->maxweight) && tree->weight)
+    if (!check_balance(tree))
     {
         Node *subtree = rebuild(tree->root);
         tree->root = subtree;
         subtree->parent = NULL;
+        tree->maxweight = tree->weight;
     }
     return 0;
 }
