@@ -8,14 +8,14 @@
 int L_Add(Tree *tree, unsigned int key, unsigned int info)
 {
     int n = insert_node(tree, key, info);
-    // L_GraphViz_Print(tree);
+    //L_GraphViz_Print(tree);
     return n;
 }
 
 int L_Delete(Tree *tree, unsigned int key, int pos)
 {
     int n = delete_node(tree, key, pos);
-    // L_GraphViz_Print(tree);
+    //L_GraphViz_Print(tree);
     return n;
 }
 
@@ -70,7 +70,7 @@ int L_Import(Tree *tree, char *fname)
     free(fname);
     if (!file)
         return 1;
-    // remove_node(tree->root);
+    //remove_node(tree->root);
     unsigned int buf[2];
     while (fscanf(file, "%u\n%u", &buf[0], &buf[1]) == 2)
         insert_node(tree, buf[0], buf[1]);
@@ -85,20 +85,21 @@ int L_Timing()
 {
     clock_t begin, end;
     FILE *file = fopen("timing.txt", "w");
-    const int MAX_NUM = 2000001, MIN_NUM = 100000, step = 100000, capacity = 100000;
-    const int num_of_res = 15;
+    fclose(file);
+    const int MAX_NUM = 6000001, MIN_NUM = 500000, step = 500000, capacity = 100000;
+    const int num_of_res = 25;
     for (int num_of_elemts = MIN_NUM; num_of_elemts < MAX_NUM; num_of_elemts += step)
     {
+        file = fopen("timing.txt", "a");
         Tree *tree = init_tree();
         double insertions = 0.0, findings = 0.0, deletions = 0.0, sfindings = 0.0;
-        Array *arr = set(num_of_elemts);
+        Array *arr = set(num_of_elemts, num_of_elemts);
         for (int i = 0; i < step; i++)
             insert_node(tree, arr->ks[i]->key, arr->ks[i]->info);
         remove_array(arr);
         for (int j = 0; j < num_of_res; j++)
         {
-            // printf(".");
-            Array *addit = set(capacity);
+            Array *addit = set(capacity, num_of_elemts);
             begin = clock();
             for (int i = 0; i < capacity; i++)
                 L_Add(tree, addit->ks[i]->key, 1);
@@ -126,11 +127,10 @@ int L_Timing()
         findings /= num_of_res;
         deletions /= num_of_res;
         sfindings /= num_of_res;
-        // printf("\nNum of elements: %d\n Time on insert(): %f ms.\n Time on find(): %f ms.\n Time on delete(): %f ms.\n", num_of_elemts, insertions / num_of_elemts, findings / num_of_elemts, deletions / num_of_elemts);
-        printf(".");
-        fprintf(file, "%d %f %f %f %f\n", num_of_elemts, insertions / num_of_elemts, findings / num_of_elemts, deletions / num_of_elemts, sfindings / num_of_elemts);
+        printf("%d\n", num_of_elemts / step);
+        fprintf(file, "%d %f %f %f %f\n", num_of_elemts, insertions / capacity, findings / capacity, deletions / capacity, sfindings / capacity);
+        fclose(file);
     }
-    fclose(file);
     return 0;
 }
 

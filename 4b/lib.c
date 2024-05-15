@@ -34,7 +34,7 @@ void remove_node(Node *node)
 Tree *init_tree()
 {
     Tree *tree = (Tree *)calloc(1, sizeof(Tree));
-    tree->alpha = 0.5;
+    tree->alpha = 0.75;
     return tree;
 }
 
@@ -44,7 +44,7 @@ void remove_tree(Tree *tree)
     free(tree);
 }
 
-Array *set(int size)
+Array *set(int size, int barrier)
 {
     srand(time(NULL));
     Array *arr = (Array *)malloc(sizeof(Array));
@@ -54,7 +54,7 @@ Array *set(int size)
     {
         arr->ks[i] = (Node *)calloc(1, sizeof(Node));
         arr->ks[i]->info = 1;
-        arr->ks[i]->key = rand() % size;
+        arr->ks[i]->key = rand() % barrier;
     }
     return arr;
 }
@@ -206,9 +206,10 @@ double randlog(double x, double a)
 int insert_node(Tree *tree, unsigned int key, unsigned int info)
 {
     Node *node = tree->root, *par = NULL;
-    int height = 0;
+    int height = 1;
     while (node)
     {
+        height++;
         if (node->key == key)
         {
             while (node->kmates)
@@ -221,7 +222,6 @@ int insert_node(Tree *tree, unsigned int key, unsigned int info)
             node = node->left;
         else
             node = node->right;
-        height++;
     }
     node = init_node(key, info, par);
     if (!par)
@@ -335,8 +335,8 @@ int delete_node(Tree *tree, unsigned int key, int pos)
     }
     free(y);
     (tree->weight)--;
-    //if ((tree->weight < tree->alpha * tree->maxweight) && tree->weight)
-    if (!check_balance(tree))
+    if ((tree->weight < tree->alpha * tree->maxweight) && tree->weight)
+    //if (!check_balance(tree))
     {
         Node *subtree = rebuild(tree->root);
         tree->root = subtree;
