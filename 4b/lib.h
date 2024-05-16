@@ -24,7 +24,7 @@ typedef struct Array
 Tree *init_tree();
 void remove_tree(Tree *);
 void remove_node(Node *);
-Array *set(int, int);
+Array *set(int);
 void remove_array(Array *);
 int print_array(Array *);
 

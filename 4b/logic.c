@@ -8,14 +8,14 @@
 int L_Add(Tree *tree, unsigned int key, unsigned int info)
 {
     int n = insert_node(tree, key, info);
-    //L_GraphViz_Print(tree);
+    L_GraphViz_Print(tree);
     return n;
 }
 
 int L_Delete(Tree *tree, unsigned int key, int pos)
 {
     int n = delete_node(tree, key, pos);
-    //L_GraphViz_Print(tree);
+    L_GraphViz_Print(tree);
     return n;
 }
 
@@ -70,6 +70,8 @@ int L_Import(Tree *tree, char *fname)
     free(fname);
     if (!file)
         return 1;
+    remove_tree(tree);
+    tree = init_tree();
     //remove_node(tree->root);
     unsigned int buf[2];
     while (fscanf(file, "%u\n%u", &buf[0], &buf[1]) == 2)
@@ -86,23 +88,22 @@ int L_Timing()
     clock_t begin, end;
     FILE *file = fopen("timing.txt", "w");
     fclose(file);
-    const int MAX_NUM = 6000001, MIN_NUM = 500000, step = 500000, capacity = 100000;
-    const int num_of_res = 25;
+    const int MAX_NUM = 1000001, MIN_NUM = 25000, step = 25000, capacity = 20000;
+    const int num_of_res = 20;
+    Array *addit = set(capacity);
+    Array *arr = set(MAX_NUM);
     for (int num_of_elemts = MIN_NUM; num_of_elemts < MAX_NUM; num_of_elemts += step)
     {
         file = fopen("timing.txt", "a");
         Tree *tree = init_tree();
         double insertions = 0.0, findings = 0.0, deletions = 0.0, sfindings = 0.0;
-        Array *arr = set(num_of_elemts, num_of_elemts);
-        for (int i = 0; i < step; i++)
+        for (int i = 0; i < num_of_elemts; i++)
             insert_node(tree, arr->ks[i]->key, arr->ks[i]->info);
-        remove_array(arr);
         for (int j = 0; j < num_of_res; j++)
         {
-            Array *addit = set(capacity, num_of_elemts);
             begin = clock();
             for (int i = 0; i < capacity; i++)
-                L_Add(tree, addit->ks[i]->key, 1);
+                insert_node(tree, addit->ks[i]->key, 1);
             end = clock();
             insertions += (double)(end - begin) / (CLOCKS_PER_SEC / 1000);
             begin = clock();
@@ -112,7 +113,7 @@ int L_Timing()
             findings += (double)(end - begin) / (CLOCKS_PER_SEC / 1000);
             begin = clock();
             for (int i = 0; i < capacity; i++)
-                L_Delete(tree, addit->ks[i]->key, 0);
+                delete_node(tree, addit->ks[i]->key, 10);
             end = clock();
             deletions += (double)(end - begin) / (CLOCKS_PER_SEC / 1000);
             begin = clock();
@@ -120,7 +121,6 @@ int L_Timing()
                 L_Special_Find(tree, addit->ks[i]->key, 1);
             end = clock();
             sfindings += (double)(end - begin) / (CLOCKS_PER_SEC / 1000);
-            remove_array(addit);
         }
         remove_tree(tree);
         insertions /= num_of_res;
@@ -131,6 +131,8 @@ int L_Timing()
         fprintf(file, "%d %f %f %f %f\n", num_of_elemts, insertions / capacity, findings / capacity, deletions / capacity, sfindings / capacity);
         fclose(file);
     }
+    remove_array(arr);
+    remove_array(addit);
     return 0;
 }
 

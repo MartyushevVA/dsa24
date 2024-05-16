@@ -34,7 +34,7 @@ void remove_node(Node *node)
 Tree *init_tree()
 {
     Tree *tree = (Tree *)calloc(1, sizeof(Tree));
-    tree->alpha = 0.75;
+    tree->alpha = 3.0/2.0;
     return tree;
 }
 
@@ -44,7 +44,7 @@ void remove_tree(Tree *tree)
     free(tree);
 }
 
-Array *set(int size, int barrier)
+Array *set(int size)
 {
     srand(time(NULL));
     Array *arr = (Array *)malloc(sizeof(Array));
@@ -54,7 +54,7 @@ Array *set(int size, int barrier)
     {
         arr->ks[i] = (Node *)calloc(1, sizeof(Node));
         arr->ks[i]->info = 1;
-        arr->ks[i]->key = rand() % barrier;
+        arr->ks[i]->key = rand() % 10000000;
     }
     return arr;
 }
@@ -137,11 +137,12 @@ Node *get_sibling(Node *node)
 
 Node *find_scapegoat(Tree *tree, Node *node)
 {
-    int size = 1, par_size = 0;
+    int size = 1, par_size = 0, height = 0;
     while (node->parent)
     {
+        height++;
         par_size = 1 + size + get_size(get_sibling(node));
-        if (size > tree->alpha * par_size)
+        if (height > tree->alpha * par_size)
             return node->parent;
         node = node->parent;
         size = par_size;
@@ -262,7 +263,7 @@ int insert_node(Tree *tree, unsigned int key, unsigned int info)
 
 /*---Remove----------------------------*/
 
-Node *find_cert_node(Node *prev, Node *node, unsigned int key, int pos)
+Node *find_cert_node(Node **prev, Node *node, unsigned int key, int pos)
 {
     if (!node)
         return NULL;
@@ -272,7 +273,7 @@ Node *find_cert_node(Node *prev, Node *node, unsigned int key, int pos)
         for (int i = 0; i < pos; i++)
             if (ptr->kmates)
             {
-                prev = ptr;
+                *prev = ptr;
                 ptr = ptr->kmates;
             }
         return ptr;
@@ -292,7 +293,7 @@ int check_balance(Tree *tree)
 int delete_node(Tree *tree, unsigned int key, int pos)
 {
     Node *prev = NULL;
-    Node *x = find_cert_node(prev, tree->root, key, pos);
+    Node *x = find_cert_node(&prev, tree->root, key, pos);
     Node *node = NULL, *par = NULL, *y = NULL;
     if (!x)
         return 1;
