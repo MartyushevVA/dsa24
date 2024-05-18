@@ -12,15 +12,15 @@ int L_Delete_Vert(Graph*, char*);
 int L_Delete_Edge(Graph*, char*, char*);
 int L_Change_Vert(Graph*, char*, char*, int, int, int);
 
-int L_Print_List();
-int L_Print_Graph();
+int L_Print_List(Graph*);
+int L_Print_Graph(Graph*);
 
-int L_Passage();
-int L_Find_Min();
-int L_Special_Func();
+int L_Passage(Graph*, char*);
+int L_Find_Min(Graph*, char*,char*);
+int L_Special_Func(Graph*, char*, int);
 
-int L_Import();
+int L_Import(Graph*, char*);
 int L_Timing();
-int L_Extra_Task();
+int L_Extra_Task(Graph*);
 
 #endif

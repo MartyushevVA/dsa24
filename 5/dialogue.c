@@ -58,13 +58,14 @@ int D_Add_Vert(Graph *graph)
         return 0;
     }
     n = L_Add_Vert(graph, name, sex, born, died);
+    free(name);
     printf("%s\n", errmsgs[n]);
     return 1;
 }
 
 int D_Add_Edge(Graph *graph)
 {
-    char *errmsgs[] = {"| Ok"};
+    char *errmsgs[] = {"| Ok", "| Same person or one of them doesn't exist"};
     int n;
     printf("Enter first name: ");
     char *name_1 = readline("");
@@ -78,26 +79,29 @@ int D_Add_Edge(Graph *graph)
         return 0;
     }
     n = L_Add_Edge(graph, name_1, name_2);
+    free(name_1);
+    free(name_2);
     printf("%s\n", errmsgs[n]);
     return 1;
 }
 
 int D_Delete_Vert(Graph *graph)
 {
-    char *errmsgs[] = {"| Ok"};
+    char *errmsgs[] = {"| Ok", "| Doesn't exist"};
     int n;
     printf("Enter name: ");
     char *name = readline("");
     if (!name)
         return 0;
     n = L_Delete_Vert(graph, name);
+    free(name);
     printf("%s\n", errmsgs[n]);
     return 1;
 }
 
 int D_Delete_Edge(Graph *graph)
 {
-    char *errmsgs[] = {"| Ok"};
+    char *errmsgs[] = {"| Ok","| Same person or one of them doesn't exist", "| There is no connection"};
     int n;
     printf("Enter first name: ");
     char *name_1 = readline("");
@@ -111,13 +115,15 @@ int D_Delete_Edge(Graph *graph)
         return 0;
     }
     n = L_Delete_Edge(graph, name_1, name_2);
+    free(name_1);
+    free(name_2);
     printf("%s\n", errmsgs[n]);
     return 1;
 }
 
 int D_Change_Vert(Graph *graph)
 {
-    char *errmsgs[] = {"| Ok"};
+    char *errmsgs[] = {"| Ok", "| Doesn't exist"};
     int n;
     int sex, born, died;
     printf("Enter existing name: ");
@@ -156,17 +162,105 @@ int D_Change_Vert(Graph *graph)
         return 0;
     }
     n = L_Change_Vert(graph, name_x, name_n, sex, born, died);
+    free(name_n);
+    free(name_x);
     printf("%s\n", errmsgs[n]);
     return 1;
 }
 
-int D_Print_List(Graph *graph);
-int D_Print_Graph(Graph *graph);
+int D_Print_List(Graph *graph)
+{
+    L_Print_List(graph);
+    return 1;
+}
+int D_Print_Graph(Graph *graph)
+{
+    L_Print_Graph(graph);
+    return 1;
+}
 
-int D_Passage(Graph *graph);
-int D_Find_Min(Graph *graph);
-int D_Special_Func(Graph *graph);
+int D_Passage(Graph *graph)
+{
+    char *errmsgs[] = {"| Ok"};
+    int n;
+    printf("Enter name: ");
+    char *name = readline("");
+    if (!name)
+        return 0;
+    n = L_Passage(graph, name);
+    free(name);
+    printf("%s\n", errmsgs[n]);
+    return 1;
+}
 
-int D_Import(Graph *graph);
-int D_Timing(Graph *graph);
-int D_Extra_Task(Graph *graph);
+int D_Find_Min(Graph *graph)
+{
+    char *errmsgs[] = {"| Ok"};
+    int n;
+    printf("Enter first name: ");
+    char *name_1 = readline("");
+    if (!name_1)
+        return 0;
+    printf("Enter second name: ");
+    char *name_2 = readline("");
+    if (!name_2)
+    {
+        free(name_1);
+        return 0;
+    }
+    n = L_Find_Min(graph, name_1, name_2);
+    free(name_1);
+    free(name_2);
+    printf("%s\n", errmsgs[n]);
+    return 1;
+}
+
+int D_Special_Func(Graph *graph)
+{
+    char *errmsgs[] = {"| Ok"};
+    int n;
+    int cash;
+    printf("Enter name: ");
+    char *name = readline("");
+    if (!name)
+        return 0;
+    printf("Enter quantity of money: ");
+    n = input(&cash);
+    if (n)
+    {
+        free(name);
+        return 0;
+    }
+    n = L_Special_Func(graph, name, cash);
+    free(name);
+    printf("%s\n", errmsgs[n]);
+    return 1;
+}
+
+int D_Import(Graph *graph)
+{
+    char *errmsgs[] = {"Loaded", "File doesn't exist", "File empty"};
+    char *fname = NULL;
+    int check = 0;
+    int n;
+    do
+    {
+        printf("Enter .txt file name: ");
+        if (fname)
+            free(fname);
+        fname = readline("");
+        if (!fname)
+            return 0;
+        int size = (int)strlen(fname);
+        if ((int)strlen(fname) > 3)
+            check = (fname[size - 4] == '.' && fname[size - 3] == 't' && fname[size - 2] == 'x' && fname[size - 1] == 't');
+    } while (!check);
+    n = L_Import(graph, fname);
+    printf("%s\n", errmsgs[n]);
+    return 1;
+}
+
+int D_Timing(Graph *graph)
+{
+    return L_Timing();
+}

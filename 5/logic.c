@@ -5,66 +5,79 @@
 #include "lib.h"
 #include "logic.h"
 
-int L_Add(Tree *tree, unsigned int key, unsigned int info)
+int L_Add_Vert(Graph *graph, char *name, int sex, int born, int died)
 {
-    int n = insert_node(tree, key, info);
-    L_GraphViz_Print(tree);
+    int n = add_vertex(graph, name, sex, born, died);
     return n;
 }
 
-int L_Delete(Tree *tree, unsigned int key, int pos)
+int L_Add_Edge(Graph *graph, char *name_1, char *name_2)
 {
-    int n = delete_node(tree, key, pos);
-    L_GraphViz_Print(tree);
+    int n = add_edge(graph, name_1, name_2);
     return n;
 }
 
-int L_Passage(Tree *tree, unsigned int *border)
+int L_Delete_Vert(Graph *graph, char *name)
 {
-    return passage(tree, border);
+    int n = rm_vertex(graph, name);
+    return n;
 }
 
-int L_Find(Tree *tree, unsigned int key, int mode)
+int L_Delete_Edge(Graph *graph, char *name_1, char *name_2)
 {
-    Array *arr = find_node(tree, key);
-    if (mode)
-    {
-        remove_array(arr);
-        return 0;
-    }
-    return print_array(arr);
+    int n = rm_edge(graph, name_1, name_2);
+    return n;
 }
 
-int L_Special_Find(Tree *tree, unsigned int key, int mode)
+int L_Change_Vert(Graph *graph, char *name_x, char *name_n, int sex, int born, int died)
 {
-    Array *arr = sfind_node(tree, key);
-    if (mode)
-    {
-        remove_array(arr);
-        return 0;
-    }
-    return print_array(arr);
+    int n = chng_vertex(graph, name_x, name_n, sex, born, died);
+    return n;
 }
 
-void L_Format_Print(Tree *tree)
+int L_Print_List(Graph *graph)
 {
-    print_tree(tree->root, 0);
+    print_as_list(graph);
 }
 
-void L_GraphViz_Print(Tree *tree)
+int L_Print_Graph(Graph *graph)
 {
     FILE *file = fopen("graph.dot", "w");
-    int filler = 0;
     if (file)
     {
         fprintf(file, "digraph G {\n");
-        graphviz(tree->root, file, &filler);
+        print_graphviz(graph, file);
         fprintf(file, "}\n");
         fclose(file);
     }
 }
 
-int L_Import(Tree *tree, char *fname)
+int L_Passage(Graph *graph, char *name)
+{
+}
+
+int L_Find_Min(Graph *graph, char *name_1, char *name_2)
+{
+}
+
+int L_Special_Func(Graph *graph, char *name, int cash)
+{
+}
+
+int L_Import(Graph *graph, char *fname)
+{
+}
+
+int L_Timing()
+{
+}
+
+int L_Extra_Task(Graph *graph)
+{
+}
+
+
+/*int L_Import(Tree *tree, char *fname)
 {
     FILE *file = fopen(fname, "r");
     free(fname);
@@ -72,7 +85,7 @@ int L_Import(Tree *tree, char *fname)
         return 1;
     remove_tree(tree);
     tree = init_tree();
-    //remove_node(tree->root);
+    // remove_node(tree->root);
     unsigned int buf[2];
     while (fscanf(file, "%u\n%u", &buf[0], &buf[1]) == 2)
         insert_node(tree, buf[0], buf[1]);
@@ -134,40 +147,4 @@ int L_Timing()
     remove_array(arr);
     remove_array(addit);
     return 0;
-}
-
-int L_Add_Task(char *fname, unsigned int key)
-{
-    FILE *file = fopen(fname, "r");
-    free(fname);
-    if (!file)
-        return 1;
-    Tree *tree = init_tree();
-    unsigned int num_of_string = 0;
-    char line[1024];
-    while (fgets(line, sizeof(line), file))
-    {
-        char *token = strtok(line, ", ");
-        while (token)
-        {
-            insert_node(tree, atoi(token), num_of_string);
-            token = strtok(NULL, ", ");
-        }
-        num_of_string++;
-    }
-    fclose(file);
-    int size = 0;
-    unsigned int *arr = get_branch_info(tree, key, &size);
-    printf("Found in rows: ");
-    unsigned int last = 9999;
-    for (int i = 0; i < size; i++)
-        if (arr[i] != last)
-        {
-            last = arr[i];
-            printf("%u ", arr[i]);
-        }
-    printf("\n");
-    free(arr);
-    remove_tree(tree);
-    return 0;
-}
+}*/
