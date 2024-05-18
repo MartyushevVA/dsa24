@@ -228,6 +228,111 @@ void print_graphviz(Graph *graph, FILE *fp)
     }
 }
 
-int breadth_first_search(graph, name);
-int dijkstra(graph, name_1, name_2);
-int bellman_ford_algorithm(graph, name, cash);
+int get_size(Graph *graph)
+{
+    int size = 0;
+    Vertex *ptr = graph->head;
+    while (ptr)
+    {
+        size++;
+        ptr = ptr->next;
+    }
+    return size;
+}
+
+int pointer_to_index(Array *arr, Vertex *ver)
+{
+    for (int i = 0; i < arr->size; i++)
+        if (arr->space[i] == ver)
+            return i;
+    return -1;
+}
+
+int name_to_index(Array *arr, char *name)
+{
+    for (int i = 0; i < arr->size; i++)
+        if (strcmp(arr->space[i]->name, name) == 0)
+            return i;
+    return -1;
+}
+
+Vertex *index_to_pointer(Array *arr, int index)
+{
+    return arr->space[index];
+}
+
+int is_name_in_list(Array *arr, char *name)
+{
+    return name_to_index(arr, name) != -1;
+}
+
+Matrix *graph_to_matrix(Graph *graph)
+{
+    Matrix *matrix = (Matrix *)malloc(sizeof(Matrix));
+    matrix->size = get_size(graph);
+    matrix->field = (int **)malloc(matrix->size * sizeof(Array));
+    matrix->positions = (Array *)malloc(sizeof(Array));
+    matrix->positions->size = matrix->size;
+    matrix->positions->space = (Vertex **)malloc(matrix->size * sizeof(Vertex *));
+    Vertex *ptr = graph->head;
+    for (int i = 0; i < matrix->size; i++)
+    {
+        matrix->positions->space[i] = ptr;
+        ptr = ptr->next;
+        matrix->field[i] = (int *)calloc(matrix->size, sizeof(int));
+    }
+    for (int i = 0; i < matrix->size; i++)
+        for (int j = 0; j < matrix->size; j++)
+        {
+            if (i != j)
+            {
+                if (is_connected(matrix->positions->space[i], matrix->positions->space[j]))
+                    matrix->field[i][j] = 1;
+                else
+                    matrix->field[i][j] = 99999;
+            }
+        }
+    return matrix;
+}
+
+int breadth_first_search(Graph *graph, char *name)
+{
+    Matrix *matr = graph_to_matrix(graph);
+    int dist = (int *)calloc(matr->size, sizeof(int));
+}
+
+int dijkstra(Graph *graph, char *name_1, char *name_2)
+{
+    Matrix *matr = graph_to_matrix(graph);
+    int *dist = (int *)calloc(matr->size, sizeof(int));
+    if (!is_name_in_list(matr->positions, name_1) || !is_name_in_list(matr->positions, name_2))
+        return -1;
+    int start = name_to_index(matr->positions, name_1);
+    for (int i = 0; i < matr->size; i++)
+        if (i != start)
+            dist[i] = 99999;
+    int *visited = (int *)calloc(matr->size, sizeof(int));
+    for (int i = 0; i < matr->size; i++)
+    {
+        int nearest = -1;
+        for (int j = 0; j < matr->size; j++)
+        {
+            if (!visited[j] && (nearest == -1 || dist[nearest] > dist[j]))
+                nearest = j;
+        }
+        if (dist[nearest] > 9999)
+            break;
+        visited[nearest] = 1;
+        for (int k = 0; k < matr->size; k++)
+            if (dist[matr->field[i][k]] > dist[nearest] + matr->field[nearest][k])
+                dist[matr->field[i][k]] = dist[nearest] + matr->field[nearest][k];
+    }
+    // каскадные чистки
+    return dist[name_to_index(matr->positions, name_2)];
+}
+
+int bellman_ford_algorithm(Graph *graph, char *name, int cash)
+{
+    Matrix *matr = graph_to_matrix(graph);
+    int dist = (int *)calloc(matr->size, sizeof(int));
+}

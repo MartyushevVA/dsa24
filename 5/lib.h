@@ -20,6 +20,20 @@ typedef struct Graph
     Vertex *head;
 } Graph;
 
+typedef struct Array
+{
+    int size;
+    Vertex **space;
+} Array;
+
+typedef struct Matrix
+{
+    int size;
+    Array* positions;
+    int** field;
+} Matrix;
+
+
 void remove_graph(Graph *);
 Graph *init_graph();
 
@@ -31,8 +45,8 @@ int chng_vertex(Graph *, char *, char *, int, int, int);
 void print_as_list(Graph *);
 void print_graphviz(Graph *, FILE *);
 
-int breadth_first_search(graph, name);
-int dijkstra(graph, name_1, name_2);
-int bellman_ford_algorithm(graph, name, cash);
+int breadth_first_search(Graph*, char*);
+int dijkstra(Graph*, char*, char*);
+int bellman_ford_algorithm(Graph*, char*, int);
 
 #endif
