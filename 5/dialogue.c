@@ -7,9 +7,9 @@
 int dialog()
 {
     char *msgs[] = {"0. Quit\n", "1. Add vertex\n", "2. Add edge\n", "3. Delete vertex\n",
-                    "4. Delete edge\n", "5. Change Vertex\n", "7. Print as list\n",
-                    "8. Print as graph\n", "9. Passage\n", "10. Find Min\n", "11. Special function\n",
-                    "12. Import\n", "13. Timing\n", "14. Extra task\n"};
+                    "4. Delete edge\n", "5. Change Vertex\n", "6. Print as list\n",
+                    "7. Print as graph\n", "8. Passage\n", "9. Find Min\n", "10. Special function\n",
+                    "11. Import\n", "12. Timing\n", "13. Extra task\n"};
     char *errmsg = "";
     int N = 14;
     int choice = 0;
@@ -29,7 +29,7 @@ int dialog()
 
 int D_Add_Vert(Graph *graph)
 {
-    char *errmsgs[] = {"| Ok"};
+    char *errmsgs[] = {"| Ok", "Already exist"};
     int n;
     int sex, born, died;
     printf("Enter name: ");
@@ -65,7 +65,7 @@ int D_Add_Vert(Graph *graph)
 
 int D_Add_Edge(Graph *graph)
 {
-    char *errmsgs[] = {"| Ok", "| Same person or one of them doesn't exist"};
+    char *errmsgs[] = {"| Ok", "| Missing second person", "| Already connected"};
     int n;
     printf("Enter first name: ");
     char *name_1 = readline("");
@@ -101,7 +101,7 @@ int D_Delete_Vert(Graph *graph)
 
 int D_Delete_Edge(Graph *graph)
 {
-    char *errmsgs[] = {"| Ok","| Same person or one of them doesn't exist", "| There is no connection"};
+    char *errmsgs[] = {"| Ok", "| Missing second person", "| There is no connection"};
     int n;
     printf("Enter first name: ");
     char *name_1 = readline("");
@@ -263,4 +263,8 @@ int D_Import(Graph *graph)
 int D_Timing(Graph *graph)
 {
     return L_Timing();
+}
+
+int D_Extra_Task(Graph *graph)
+{
 }

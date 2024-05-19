@@ -12,7 +12,6 @@ Vertex *init_vertex(char *name, int sex, int born, int died)
     elem->sex = sex;
     elem->name = (char *)calloc(strlen(name) + 1, sizeof(char));
     strcpy(elem->name, name);
-    free(name);
     return elem;
 }
 
@@ -20,6 +19,32 @@ Graph *init_graph()
 {
     Graph *graph = (Graph *)calloc(1, sizeof(Graph));
     return graph;
+}
+
+void remove_graph(Graph *graph)
+{
+    if (!graph->head)
+        return;
+    Vertex *ptr = graph->head;
+    Vertex *vprev = NULL;
+    Nbors *nprev = NULL;
+    Nbors *temp = NULL;
+    while (ptr)
+    {
+        temp = ptr->pair;
+        nprev = NULL;
+        while (temp)
+        {
+            nprev = temp;
+            temp = temp->next;
+            free(nprev);
+        }
+        free(ptr->name);
+        vprev = ptr;
+        ptr = ptr->next;
+        free(vprev);
+    }
+    free(graph);
 }
 
 Vertex *find_by_name(Graph *graph, Vertex **previos, char *name)
@@ -41,7 +66,19 @@ int is_connected(Vertex *one, Vertex *another)
     while (ptr)
     {
         if (ptr->node == another)
-            return strcmp(ptr->node->name, another->name);
+            return 1;
+        ptr = ptr->next;
+    }
+    return 0;
+}
+
+int is_exist(Graph *graph, char *name)
+{
+    Vertex *ptr = graph->head;
+    while (ptr)
+    {
+        if (strcmp(ptr->name, name) == 0)
+            return 1;
         ptr = ptr->next;
     }
     return 0;
@@ -49,32 +86,24 @@ int is_connected(Vertex *one, Vertex *another)
 
 int add_vertex(Graph *graph, char *name, int sex, int born, int died)
 {
+    if (is_exist(graph, name))
+        return 1;
     Vertex *elem = init_vertex(name, sex, born, died);
-    Vertex *ptr = graph->head;
-    if (!ptr)
-    {
-        graph->head = elem;
-        return 0;
-    }
-    while (ptr->next)
-        ptr = ptr->next;
-    ptr->next = elem;
+    elem->next = graph->head;
+    graph->head = elem;
     return 0;
 }
 
 int add_edge(Graph *graph, char *name_1, char *name_2)
 {
-    Vertex *one = NULL, *another = NULL, *ptr = graph->head;
-    while (ptr)
-    {
-        if (strcmp(ptr->name, name_1) == 0)
-            one = ptr;
-        if (strcmp(ptr->name, name_2) == 0)
-            another = ptr;
-        ptr = ptr->next;
-    }
+    Vertex *trash;
+    Vertex *one = find_by_name(graph, &trash, name_1);
+    Vertex *another = find_by_name(graph, &trash, name_2);
+    Vertex *ptr = graph->head;
     if (!one || !another || one == another)
         return 1;
+    if (is_connected(one, another))
+        return 2;
     Nbors *new = (Nbors *)malloc(sizeof(Nbors));
     new->node = another;
     new->next = one->pair;
@@ -126,25 +155,13 @@ int rm_vertex(Graph *graph, char *name)
 
 int rm_edge(Graph *graph, char *name_1, char *name_2)
 {
-    Vertex *one = NULL, *another = NULL, *ptr = graph->head;
-    while (ptr)
-    {
-        if (strcmp(ptr->name, name_1) == 0)
-        {
-            one = ptr;
-            if (another)
-                break;
-        }
-        if (strcmp(ptr->name, name_2) == 0)
-        {
-            another = ptr;
-            if (one)
-                break;
-        }
-        ptr = ptr->next;
-    }
+    Vertex *trash;
+    Vertex *one = find_by_name(graph, &trash, name_1);
+    Vertex *another = find_by_name(graph, &trash, name_2);
     if (!one || !another || one == another)
         return 1;
+    if (!is_connected(one, another))
+        return 2;
     Nbors *temp = one->pair, *prev = NULL;
     while (temp)
     {
@@ -153,8 +170,6 @@ int rm_edge(Graph *graph, char *name_1, char *name_2)
         prev = temp;
         temp = temp->next;
     }
-    if (temp->node != another)
-        return 1;
     if (!prev)
         one->pair = temp->next;
     else
@@ -168,8 +183,6 @@ int rm_edge(Graph *graph, char *name_1, char *name_2)
         prev = temp;
         temp = temp->next;
     }
-    if (temp->node != one)
-        return 1;
     if (!prev)
         another->pair = temp->next;
     else
@@ -189,6 +202,7 @@ int chng_vertex(Graph *graph, char *name_x, char *name_n, int sex, int born, int
     elem->born = born;
     elem->died = died;
     elem->sex = sex;
+    return 0;
 }
 
 void print_as_list(Graph *graph)
@@ -220,7 +234,7 @@ void print_graphviz(Graph *graph, FILE *fp)
         fprintf(fp, "    %s;\n", ptr->name);
         while (temp)
         {
-            if (is_connected(ptr, temp) > 0)
+            if (is_connected(ptr, temp))
                 fprintf(fp, "    %s -> %s;\n", ptr->name, temp->name);
             temp = temp->next;
         }
@@ -295,11 +309,11 @@ Matrix *graph_to_matrix(Graph *graph)
     return matrix;
 }
 
-int breadth_first_search(Graph *graph, char *name)
+/*int breadth_first_search(Graph *graph, char *name)
 {
     Matrix *matr = graph_to_matrix(graph);
     int dist = (int *)calloc(matr->size, sizeof(int));
-}
+}*/
 
 int dijkstra(Graph *graph, char *name_1, char *name_2)
 {
@@ -327,12 +341,16 @@ int dijkstra(Graph *graph, char *name_1, char *name_2)
             if (dist[matr->field[i][k]] > dist[nearest] + matr->field[nearest][k])
                 dist[matr->field[i][k]] = dist[nearest] + matr->field[nearest][k];
     }
-    // каскадные чистки
+    for (int i = 0; i < matr->size; i++)
+        free(matr->field[i]);
+    free(matr->field);
+    free(matr->positions);
+    free(matr);
     return dist[name_to_index(matr->positions, name_2)];
 }
 
-int bellman_ford_algorithm(Graph *graph, char *name, int cash)
+/*int bellman_ford_algorithm(Graph *graph, char *name, int cash)
 {
     Matrix *matr = graph_to_matrix(graph);
     int dist = (int *)calloc(matr->size, sizeof(int));
-}
+}*/

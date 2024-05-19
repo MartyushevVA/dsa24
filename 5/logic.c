@@ -8,30 +8,40 @@
 int L_Add_Vert(Graph *graph, char *name, int sex, int born, int died)
 {
     int n = add_vertex(graph, name, sex, born, died);
+    print_as_list(graph);
+    L_Print_Graph(graph);
     return n;
 }
 
 int L_Add_Edge(Graph *graph, char *name_1, char *name_2)
 {
     int n = add_edge(graph, name_1, name_2);
+    print_as_list(graph);
+    L_Print_Graph(graph);
     return n;
 }
 
 int L_Delete_Vert(Graph *graph, char *name)
 {
     int n = rm_vertex(graph, name);
+    print_as_list(graph);
+    L_Print_Graph(graph);
     return n;
 }
 
 int L_Delete_Edge(Graph *graph, char *name_1, char *name_2)
 {
     int n = rm_edge(graph, name_1, name_2);
+    print_as_list(graph);
+    L_Print_Graph(graph);
     return n;
 }
 
 int L_Change_Vert(Graph *graph, char *name_x, char *name_n, int sex, int born, int died)
 {
     int n = chng_vertex(graph, name_x, name_n, sex, born, died);
+    print_as_list(graph);
+    L_Print_Graph(graph);
     return n;
 }
 

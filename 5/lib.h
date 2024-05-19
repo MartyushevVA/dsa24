@@ -4,7 +4,7 @@
 typedef struct Nbors
 {
     struct Vertex *node;
-    Nbors *next;
+    struct Nbors *next;
 } Nbors;
 
 typedef struct Vertex
@@ -12,7 +12,7 @@ typedef struct Vertex
     char *name;
     int sex, born, died;
     Nbors *pair;
-    Vertex *next;
+    struct Vertex *next;
 } Vertex;
 
 typedef struct Graph
