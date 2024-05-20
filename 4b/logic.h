@@ -15,6 +15,6 @@ void L_Format_Print(Tree *);
 void L_GraphViz_Print(Tree *);
 int L_Import(Tree *, char *);
 int L_Timing();
-int L_Add_Task(char *, unsigned int);
+int L_Add_Task(Tree*, char *, unsigned int);
 
 #endif

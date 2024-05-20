@@ -170,7 +170,7 @@ int D_Add_Task(Tree *tree)
     n = u_input(&key);
     if (n)
         return 0;
-    n = L_Add_Task(fname, key);
+    n = L_Add_Task(tree, fname, key);
     printf("%s\n", errmsgs[n]);
     return 1;
 }

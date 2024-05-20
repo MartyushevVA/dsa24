@@ -83,8 +83,8 @@ int L_Timing()
     clock_t begin, end;
     FILE *file = fopen("timing.txt", "w");
     fclose(file);
-    const int MAX_NUM = 1000001, MIN_NUM = 100000, step = 100000, capacity = 10000;
-    const int num_of_res = 1;
+    const int MAX_NUM = 1000001, MIN_NUM = 100000, step = 100000, capacity = 100000;
+    const int num_of_res = 10;
     Tree *tree = init_tree();
     for (int num_of_elemts = MIN_NUM; num_of_elemts < MAX_NUM; num_of_elemts += step)
     {
@@ -132,13 +132,13 @@ int L_Timing()
     return 0;
 }
 
-int L_Add_Task(char *fname, unsigned int key)
+int L_Add_Task(Tree* tree, char *fname, unsigned int key)
 {
     FILE *file = fopen(fname, "r");
     free(fname);
     if (!file)
         return 1;
-    Tree *tree = init_tree();
+    //remove_node(tree->root);
     unsigned int num_of_string = 0;
     char line[1024];
     while (fgets(line, sizeof(line), file))
@@ -164,6 +164,5 @@ int L_Add_Task(char *fname, unsigned int key)
         }
     printf("\n");
     free(arr);
-    remove_tree(tree);
     return 0;
 }

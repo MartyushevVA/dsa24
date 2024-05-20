@@ -32,7 +32,7 @@ void remove_node(Node *node)
 Tree *init_tree()
 {
     Tree *tree = (Tree *)calloc(1, sizeof(Tree));
-    tree->alpha = 2.0/3.0;
+    tree->alpha = 0.6;
     return tree;
 }
 
@@ -42,7 +42,7 @@ void remove_tree(Tree *tree)
     free(tree);
 }
 
-Array *set(int size)
+Array *set(int size, int barrier)
 {
     srand(time(NULL));
     Array *arr = (Array *)malloc(sizeof(Array));
@@ -52,7 +52,7 @@ Array *set(int size)
     {
         arr->ks[i] = (Node *)calloc(1, sizeof(Node));
         arr->ks[i]->info = 1;
-        arr->ks[i]->key = rand() % 10000000;
+        arr->ks[i]->key = rand() % barrier;
     }
     return arr;
 }
@@ -129,12 +129,11 @@ Node *get_sibling(Node *node)
 
 Node *find_scapegoat(Tree *tree, Node *node)
 {
-    int size = 1, par_size = 0, height = 0;
+    int size = 1, par_size = 0;
     while (node->parent)
     {
-        height++;
         par_size = 1 + size + get_size(get_sibling(node));
-        if (height > tree->alpha * par_size)
+        if (size > tree->alpha * par_size)
             return node->parent;
         node = node->parent;
         size = par_size;
