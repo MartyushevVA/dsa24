@@ -138,7 +138,7 @@ int L_Add_Task(Tree* tree, char *fname, unsigned int key)
     free(fname);
     if (!file)
         return 1;
-    //remove_node(tree->root);
+    remove_node(tree->root);
     unsigned int num_of_string = 0;
     char line[1024];
     while (fgets(line, sizeof(line), file))
