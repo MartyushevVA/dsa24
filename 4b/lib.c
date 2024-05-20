@@ -4,8 +4,6 @@
 #include <time.h>
 #include "lib.h"
 
-/*---Init and delete----------------------------*/
-
 Node *init_node(unsigned int key, unsigned int info, Node *parent)
 {
     Node *elem = (Node *)calloc(1, sizeof(Node));
@@ -34,7 +32,7 @@ void remove_node(Node *node)
 Tree *init_tree()
 {
     Tree *tree = (Tree *)calloc(1, sizeof(Tree));
-    tree->alpha = 3.0/2.0;
+    tree->alpha = 2.0/3.0;
     return tree;
 }
 
@@ -65,8 +63,6 @@ void remove_array(Array *arr)
     free(arr);
 }
 
-/*---Minimum----------------------------*/
-
 Node *find_min(Node *node)
 {
     if (!node)
@@ -75,8 +71,6 @@ Node *find_min(Node *node)
         node = node->left;
     return node;
 }
-
-/*---Search----------------------------*/
 
 Node *find_branch(Node *node, unsigned int key)
 {
@@ -118,8 +112,6 @@ unsigned int *get_branch_info(Tree *tree, unsigned int key, int *size)
     }
     return arr;
 }
-
-/*---Reformat----------------------------*/
 
 int get_size(Node *node)
 {
@@ -180,8 +172,6 @@ Node *rebuild(Node *scapegoat)
     free(arr);
     return node;
 }
-
-/*---Insertion----------------------------*/
 
 double log(double x)
 {
@@ -261,8 +251,6 @@ int insert_node(Tree *tree, unsigned int key, unsigned int info)
     return 0;
 }
 
-/*---Remove----------------------------*/
-
 Node *find_cert_node(Node **prev, Node *node, unsigned int key, int pos)
 {
     if (!node)
@@ -337,7 +325,6 @@ int delete_node(Tree *tree, unsigned int key, int pos)
     free(y);
     (tree->weight)--;
     if ((tree->weight < tree->alpha * tree->maxweight) && tree->weight)
-    //if (!check_balance(tree))
     {
         Node *subtree = rebuild(tree->root);
         tree->root = subtree;
@@ -346,8 +333,6 @@ int delete_node(Tree *tree, unsigned int key, int pos)
     }
     return 0;
 }
-
-/*---Passage----------------------------*/
 
 void traversed_print(Node *node, unsigned int *border)
 {
@@ -368,8 +353,6 @@ int passage(Tree *tree, unsigned int *border)
     printf("\n");
     return 0;
 }
-
-/*---Special search----------------------------*/
 
 Node *sfind_branch(Node *node, unsigned int key)
 {
@@ -424,8 +407,6 @@ Array *sfind_node(Tree *tree, unsigned int key)
     }
     return arr;
 }
-
-/*---Prints----------------------------*/
 
 int print_array(Array *arr)
 {
