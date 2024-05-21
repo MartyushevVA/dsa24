@@ -36,6 +36,9 @@ typedef struct Matrix
 
 void remove_graph(Graph *);
 Graph *init_graph();
+void print_array(Array *);
+void remove_array(Array *);
+
 
 int add_vertex(Graph *, char *, int, int, int);
 int add_edge(Graph *, char *, char *);
@@ -45,7 +48,7 @@ int chng_vertex(Graph *, char *, char *, int, int, int);
 void print_as_list(Graph *);
 void print_graphviz(Graph *, FILE *);
 
-int breadth_first_search(Graph*, char*);
+Array* breadth_first_search(Graph*, char*);
 int dijkstra(Graph*, char*, char*);
 int bellman_ford_algorithm(Graph*, char*, int);
 

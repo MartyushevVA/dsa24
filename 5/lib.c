@@ -4,6 +4,75 @@
 #include <time.h>
 #include "lib.h"
 
+typedef struct Item
+{
+    int data;
+    struct Item *next;
+} Item;
+
+typedef struct Queue
+{
+    Item *tail;
+    Item *head;
+} Queue;
+
+Queue *init_queue()
+{
+    Queue *queue = (Queue *)malloc(sizeof(Queue));
+    queue->tail = NULL;
+    queue->head = NULL;
+    return queue;
+}
+
+int q_is_empty(Queue *queue)
+{
+    return !queue->head;
+}
+
+void q_push(Queue *queue, int elem)
+{
+    Item *new = (Item *)malloc(sizeof(Item));
+    new->data = elem;
+    new->next = NULL;
+    if (!queue->head)
+    {
+        queue->head = new;
+        queue->tail = new;
+    }
+    else
+    {
+        queue->tail->next = new;
+        queue->tail = new;
+    }
+}
+
+int q_pop(Queue *queue)
+{
+    if (!queue->head)
+        return -1;
+    else
+    {
+        int data = queue->head->data;
+        Item *ptr = queue->head;
+        queue->head = ptr->next;
+        free(ptr);
+        return data;
+    }
+}
+
+void remove_queue(Queue *queue)
+{
+    Item *ptr = queue->head;
+    Item *temp;
+    while (ptr)
+    {
+        temp = ptr->next;
+        free(ptr);
+        ptr = temp;
+    }
+    free(queue);
+}
+
 Vertex *init_vertex(char *name, int sex, int born, int died)
 {
     Vertex *elem = (Vertex *)calloc(1, sizeof(Vertex));
@@ -45,6 +114,18 @@ void remove_graph(Graph *graph)
         free(vprev);
     }
     free(graph);
+}
+
+void print_array(Array *arr)
+{
+    for (int i = 0; i < arr->size; i++)
+        printf("%s (%s): %d - %d\n", arr->space[i]->name, arr->space[i]->sex ? "F" : "M", arr->space[i]->born, arr->space[i]->died);
+}
+
+void remove_array(Array *arr)
+{
+    free(arr->space);
+    free(arr);
 }
 
 Vertex *find_by_name(Graph *graph, Vertex **previos, char *name)
@@ -235,7 +316,7 @@ void print_graphviz(Graph *graph, FILE *fp)
         while (temp)
         {
             if (is_connected(ptr, temp))
-                fprintf(fp, "    %s -> %s;\n", ptr->name, temp->name);
+                fprintf(fp, "    %s -> %s;\n", ptr->born > temp->born ? temp->name : ptr->name, ptr->born > temp->born ? ptr->name : temp->name);
             temp = temp->next;
         }
         ptr = ptr->next;
@@ -294,59 +375,94 @@ Matrix *graph_to_matrix(Graph *graph)
         matrix->positions->space[i] = ptr;
         ptr = ptr->next;
         matrix->field[i] = (int *)calloc(matrix->size, sizeof(int));
+        for (int j = 0; j < matrix->size; j++)
+            matrix->field[i][j] = 999999999;
     }
     for (int i = 0; i < matrix->size; i++)
-        for (int j = 0; j < matrix->size; j++)
+    {
+        Nbors *ptr = matrix->positions->space[i]->pair;
+        while (ptr)
         {
-            if (i != j)
-            {
-                if (is_connected(matrix->positions->space[i], matrix->positions->space[j]))
-                    matrix->field[i][j] = 1;
-                else
-                    matrix->field[i][j] = 99999;
-            }
+            matrix->field[i][name_to_index(matrix->positions, ptr->node->name)] = 1;
+            ptr = ptr->next;
         }
+    }
     return matrix;
 }
 
-/*int breadth_first_search(Graph *graph, char *name)
+void remove_matrix(Matrix *matr)
 {
-    Matrix *matr = graph_to_matrix(graph);
-    int dist = (int *)calloc(matr->size, sizeof(int));
-}*/
-
-int dijkstra(Graph *graph, char *name_1, char *name_2)
-{
-    Matrix *matr = graph_to_matrix(graph);
-    int *dist = (int *)calloc(matr->size, sizeof(int));
-    if (!is_name_in_list(matr->positions, name_1) || !is_name_in_list(matr->positions, name_2))
-        return -1;
-    int start = name_to_index(matr->positions, name_1);
-    for (int i = 0; i < matr->size; i++)
-        if (i != start)
-            dist[i] = 99999;
-    int *visited = (int *)calloc(matr->size, sizeof(int));
-    for (int i = 0; i < matr->size; i++)
-    {
-        int nearest = -1;
-        for (int j = 0; j < matr->size; j++)
-        {
-            if (!visited[j] && (nearest == -1 || dist[nearest] > dist[j]))
-                nearest = j;
-        }
-        if (dist[nearest] > 9999)
-            break;
-        visited[nearest] = 1;
-        for (int k = 0; k < matr->size; k++)
-            if (dist[matr->field[i][k]] > dist[nearest] + matr->field[nearest][k])
-                dist[matr->field[i][k]] = dist[nearest] + matr->field[nearest][k];
-    }
     for (int i = 0; i < matr->size; i++)
         free(matr->field[i]);
     free(matr->field);
     free(matr->positions);
     free(matr);
-    return dist[name_to_index(matr->positions, name_2)];
+}
+
+Array *breadth_first_search(Graph *graph, char *name)
+{
+    if (!is_exist(graph, name))
+        return NULL;
+    Array *arr = (Array *)malloc(sizeof(Array));
+    arr->size = 1;
+    arr->space = (Vertex **)malloc(sizeof(Vertex *));
+    Matrix *matr = graph_to_matrix(graph);
+    int *visited = (int *)calloc(matr->size, sizeof(int));
+    int start = name_to_index(matr->positions, name);
+    Queue *q = init_queue();
+    Vertex *ptr = NULL;
+    q_push(q, start);
+    while (!q_is_empty(q))
+    {
+        int v = q_pop(q);
+        ptr = index_to_pointer(matr->positions, v);
+        arr->space = (Vertex **)realloc(arr->space, arr->size * sizeof(Vertex));
+        arr->space[arr->size - 1] = ptr;
+        (arr->size)++;
+        for (int i = 0; i < matr->size; i++)
+        {
+            if (matr->field[v][i] != 999999999 && v != i)
+                if (!visited[i])
+                {
+                    visited[i] = 1;
+                    q_push(q, i);
+                }
+        }
+    }
+    if (arr->size != 1)
+        (arr->size)--;
+    remove_queue(q);
+    remove_matrix(matr);
+    return 0;
+}
+
+int dijkstra(Graph *graph, char *name_1, char *name_2)
+{
+    if (!is_exist(graph, name_1) || !is_exist(graph, name_2))
+        return -1;
+    Matrix *matr = graph_to_matrix(graph);
+    int *dist = (int *)calloc(matr->size, sizeof(int));
+    int *visited = (int *)calloc(matr->size, sizeof(int));
+    int start = name_to_index(matr->positions, name_1);
+    for (int i = 0; i < matr->size; i++)
+        if (i != start)
+            dist[i] = 999999999;
+    for (int i = 0; i < matr->size; i++)
+    {
+        int nearest = -1;
+        for (int j = 0; j < matr->size; j++)
+            if (!visited[j] && (nearest == -1 || dist[nearest] > dist[j]))
+                nearest = j;
+        if (dist[nearest] == 999999999)
+            break;
+        visited[nearest] = 1;
+        for (int k = 0; k < matr->size; k++)
+            if (dist[k] > dist[nearest] + matr->field[nearest][k] && dist[nearest] + matr->field[nearest][k] < 999999999)
+                dist[k] = dist[nearest] + matr->field[nearest][k];
+    }
+    int num = dist[name_to_index(matr->positions, name_2)];
+    remove_matrix(matr);
+    return num;
 }
 
 /*int bellman_ford_algorithm(Graph *graph, char *name, int cash)

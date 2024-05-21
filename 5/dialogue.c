@@ -181,7 +181,7 @@ int D_Print_Graph(Graph *graph)
 
 int D_Passage(Graph *graph)
 {
-    char *errmsgs[] = {"| Ok"};
+    char *errmsgs[] = {"| Ok", "| Doesn't exist"};
     int n;
     printf("Enter name: ");
     char *name = readline("");
@@ -195,7 +195,7 @@ int D_Passage(Graph *graph)
 
 int D_Find_Min(Graph *graph)
 {
-    char *errmsgs[] = {"| Ok"};
+    char *errmsgs[] = {"| Ok", "| Missing second person"};
     int n;
     printf("Enter first name: ");
     char *name_1 = readline("");

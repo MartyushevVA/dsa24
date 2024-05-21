@@ -64,10 +64,21 @@ int L_Print_Graph(Graph *graph)
 
 int L_Passage(Graph *graph, char *name)
 {
+    Array *arr = breadth_first_search(graph, name);
+    if (!arr)
+        return 1;
+    print_array(arr);
+    remove_array(arr);
+    return 0;
 }
 
 int L_Find_Min(Graph *graph, char *name_1, char *name_2)
 {
+    int n = dijkstra(graph, name_1, name_2);
+    if (n == -1)
+        return 1;
+    printf("Relation degree: %d\n", n);
+    return 0;
 }
 
 int L_Special_Func(Graph *graph, char *name, int cash)
@@ -85,7 +96,6 @@ int L_Timing()
 int L_Extra_Task(Graph *graph)
 {
 }
-
 
 /*int L_Import(Tree *tree, char *fname)
 {
