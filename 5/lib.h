@@ -29,16 +29,16 @@ typedef struct Array
 typedef struct Matrix
 {
     int size;
-    Array* positions;
-    int** field;
+    Array *positions;
+    int **field;
 } Matrix;
-
 
 void remove_graph(Graph *);
 Graph *init_graph();
-void print_array(Array *);
+void print_array(Array *, int);
 void remove_array(Array *);
-
+int *distribute(int *, int, int);
+void print_distr_array(Array *, int *, int *);
 
 int add_vertex(Graph *, char *, int, int, int);
 int add_edge(Graph *, char *, char *);
@@ -48,8 +48,8 @@ int chng_vertex(Graph *, char *, char *, int, int, int);
 void print_as_list(Graph *);
 void print_graphviz(Graph *, FILE *);
 
-Array* breadth_first_search(Graph*, char*);
-int dijkstra(Graph*, char*, char*);
-int bellman_ford_algorithm(Graph*, char*, int);
+Array *breadth_first_search(Graph *, char *);
+int dijkstra(Graph *, char *, char *);
+Array *bellman_ford_algorithm(Graph *, char *, int **);
 
 #endif

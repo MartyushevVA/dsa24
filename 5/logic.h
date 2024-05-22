@@ -15,9 +15,9 @@ int L_Change_Vert(Graph*, char*, char*, int, int, int);
 int L_Print_List(Graph*);
 int L_Print_Graph(Graph*);
 
-int L_Passage(Graph*, char*);
-int L_Find_Min(Graph*, char*,char*);
-int L_Special_Func(Graph*, char*, int);
+int L_Descendants(Graph*, char*);
+int L_Min_Dist(Graph*, char*,char*);
+int L_Distribution(Graph*, char*, int);
 
 int L_Import(Graph*, char*);
 int L_Timing();

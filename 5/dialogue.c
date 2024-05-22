@@ -8,7 +8,7 @@ int dialog()
 {
     char *msgs[] = {"0. Quit\n", "1. Add vertex\n", "2. Add edge\n", "3. Delete vertex\n",
                     "4. Delete edge\n", "5. Change Vertex\n", "6. Print as list\n",
-                    "7. Print as graph\n", "8. Passage\n", "9. Find Min\n", "10. Special function\n",
+                    "7. Print as graph\n", "8. Descendants\n", "9. Min Distance\n", "10. Distribution\n",
                     "11. Import\n", "12. Timing\n", "13. Extra task\n"};
     char *errmsg = "";
     int N = 14;
@@ -179,7 +179,7 @@ int D_Print_Graph(Graph *graph)
     return 1;
 }
 
-int D_Passage(Graph *graph)
+int D_Descendants(Graph *graph)
 {
     char *errmsgs[] = {"| Ok", "| Doesn't exist"};
     int n;
@@ -187,13 +187,13 @@ int D_Passage(Graph *graph)
     char *name = readline("");
     if (!name)
         return 0;
-    n = L_Passage(graph, name);
+    n = L_Descendants(graph, name);
     free(name);
     printf("%s\n", errmsgs[n]);
     return 1;
 }
 
-int D_Find_Min(Graph *graph)
+int D_Min_Dist(Graph *graph)
 {
     char *errmsgs[] = {"| Ok", "| Missing second person"};
     int n;
@@ -208,16 +208,16 @@ int D_Find_Min(Graph *graph)
         free(name_1);
         return 0;
     }
-    n = L_Find_Min(graph, name_1, name_2);
+    n = L_Min_Dist(graph, name_1, name_2);
     free(name_1);
     free(name_2);
     printf("%s\n", errmsgs[n]);
     return 1;
 }
 
-int D_Special_Func(Graph *graph)
+int D_Distribution(Graph *graph)
 {
-    char *errmsgs[] = {"| Ok"};
+    char *errmsgs[] = {"| Ok", "| Doesn't exist"};
     int n;
     int cash;
     printf("Enter name: ");
@@ -231,7 +231,7 @@ int D_Special_Func(Graph *graph)
         free(name);
         return 0;
     }
-    n = L_Special_Func(graph, name, cash);
+    n = L_Distribution(graph, name, cash);
     free(name);
     printf("%s\n", errmsgs[n]);
     return 1;

@@ -11,9 +11,9 @@ int D_Change_Vert(Graph *);
 int D_Print_List(Graph *);
 int D_Print_Graph(Graph *);
 
-int D_Passage(Graph*);
-int D_Find_Min(Graph*);
-int D_Special_Func(Graph*);
+int D_Descendants(Graph*);
+int D_Min_Dist(Graph*);
+int D_Distribution(Graph*);
 
 int D_Import(Graph *);
 int D_Timing(Graph *);

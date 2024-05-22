@@ -62,17 +62,17 @@ int L_Print_Graph(Graph *graph)
     }
 }
 
-int L_Passage(Graph *graph, char *name)
+int L_Descendants(Graph *graph, char *name)
 {
     Array *arr = breadth_first_search(graph, name);
     if (!arr)
         return 1;
-    print_array(arr);
+    print_array(arr, 0);
     remove_array(arr);
     return 0;
 }
 
-int L_Find_Min(Graph *graph, char *name_1, char *name_2)
+int L_Min_Dist(Graph *graph, char *name_1, char *name_2)
 {
     int n = dijkstra(graph, name_1, name_2);
     if (n == -1)
@@ -81,12 +81,38 @@ int L_Find_Min(Graph *graph, char *name_1, char *name_2)
     return 0;
 }
 
-int L_Special_Func(Graph *graph, char *name, int cash)
+int L_Distribution(Graph *graph, char *name, int cash)
 {
+    int* dist = NULL;
+    Array *arr = bellman_ford_algorithm(graph, name, &dist);
+    if (!arr)
+        return 1;
+    int* distr = distribute(dist, arr->size, cash);
+    print_distr_array(arr, dist, distr);
+    remove_array(arr);
+    free(distr);
+    free(dist);
+    return 0;
 }
 
 int L_Import(Graph *graph, char *fname)
 {
+    FILE *file = fopen(fname, "r");
+    free(fname);
+    if (!file)
+        return 1;
+    int buf[3];
+    char *nbuf = (char *)calloc(1024, sizeof(char));
+    char *sname = (char *)calloc(1024, sizeof(char));
+    while (fscanf(file, "%s %d %d %d\n", nbuf, &buf[0], &buf[1], &buf[2]) == 4)
+        add_vertex(graph, nbuf, buf[0], buf[1], buf[2]);
+    fscanf(file, "\n");
+    while (fscanf(file, "%s %s\n", nbuf, sname) == 2)
+        add_edge(graph, sname, nbuf);
+    free(nbuf);
+    free(sname);
+    fclose(file);
+    return 0;
 }
 
 int L_Timing()
@@ -97,26 +123,7 @@ int L_Extra_Task(Graph *graph)
 {
 }
 
-/*int L_Import(Tree *tree, char *fname)
-{
-    FILE *file = fopen(fname, "r");
-    free(fname);
-    if (!file)
-        return 1;
-    remove_tree(tree);
-    tree = init_tree();
-    // remove_node(tree->root);
-    unsigned int buf[2];
-    while (fscanf(file, "%u\n%u", &buf[0], &buf[1]) == 2)
-        insert_node(tree, buf[0], buf[1]);
-    fclose(file);
-    if (!tree->root)
-        return 2;
-    L_GraphViz_Print(tree);
-    return 0;
-}
-
-int L_Timing()
+/*int L_Timing()
 {
     clock_t begin, end;
     FILE *file = fopen("timing.txt", "w");
