@@ -16,7 +16,5 @@ int D_Min_Dist(Graph*);
 int D_Distribution(Graph*);
 
 int D_Import(Graph *);
-int D_Timing(Graph *);
-int D_Extra_Task(Graph *);
 
 #endif

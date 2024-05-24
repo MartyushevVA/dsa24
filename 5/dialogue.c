@@ -9,9 +9,9 @@ int dialog()
     char *msgs[] = {"0. Quit\n", "1. Add vertex\n", "2. Add edge\n", "3. Delete vertex\n",
                     "4. Delete edge\n", "5. Change Vertex\n", "6. Print as list\n",
                     "7. Print as graph\n", "8. Descendants\n", "9. Min Distance\n", "10. Distribution\n",
-                    "11. Import\n", "12. Timing\n", "13. Extra task\n"};
+                    "11. Import\n"};
     char *errmsg = "";
-    int N = 14;
+    int N = 12;
     int choice = 0;
     do
     {
@@ -173,6 +173,7 @@ int D_Print_List(Graph *graph)
     L_Print_List(graph);
     return 1;
 }
+
 int D_Print_Graph(Graph *graph)
 {
     L_Print_Graph(graph);
@@ -181,7 +182,7 @@ int D_Print_Graph(Graph *graph)
 
 int D_Descendants(Graph *graph)
 {
-    char *errmsgs[] = {"| Ok", "| Doesn't exist"};
+    char *errmsgs[] = {"| Ok", "| The graph is empty", "| Doesn't exist"};
     int n;
     printf("Enter name: ");
     char *name = readline("");
@@ -195,7 +196,7 @@ int D_Descendants(Graph *graph)
 
 int D_Min_Dist(Graph *graph)
 {
-    char *errmsgs[] = {"| Ok", "| Missing second person"};
+    char *errmsgs[] = {"| Ok", "| The graph is empty", "| Doesn't exist"};
     int n;
     printf("Enter first name: ");
     char *name_1 = readline("");
@@ -217,7 +218,7 @@ int D_Min_Dist(Graph *graph)
 
 int D_Distribution(Graph *graph)
 {
-    char *errmsgs[] = {"| Ok", "| Doesn't exist"};
+    char *errmsgs[] = {"| Ok", "| The graph is empty", "| Doesn't exist"};
     int n;
     int cash;
     printf("Enter name: ");
@@ -258,13 +259,4 @@ int D_Import(Graph *graph)
     n = L_Import(graph, fname);
     printf("%s\n", errmsgs[n]);
     return 1;
-}
-
-int D_Timing(Graph *graph)
-{
-    return L_Timing();
-}
-
-int D_Extra_Task(Graph *graph)
-{
 }

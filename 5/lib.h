@@ -1,17 +1,17 @@
 #ifndef LIB_H
 #define LIB_H
 
-typedef struct Nbors
+typedef struct Related
 {
     struct Vertex *node;
-    struct Nbors *next;
-} Nbors;
+    struct Related *next;
+} Related;
 
 typedef struct Vertex
 {
     char *name;
     int sex, born, died;
-    Nbors *pair;
+    Related *pair;
     struct Vertex *next;
 } Vertex;
 
@@ -35,10 +35,10 @@ typedef struct Matrix
 
 void remove_graph(Graph *);
 Graph *init_graph();
-void print_array(Array *, int);
+void print_array(Array *);
 void remove_array(Array *);
-int *distribute(int *, int, int);
-void print_distr_array(Array *, int *, int *);
+int *distribute(Matrix *, int **, char *, int);
+void print_distr_array(Array *, int **, char *, int *);
 
 int add_vertex(Graph *, char *, int, int, int);
 int add_edge(Graph *, char *, char *);
@@ -48,8 +48,11 @@ int chng_vertex(Graph *, char *, char *, int, int, int);
 void print_as_list(Graph *);
 void print_graphviz(Graph *, FILE *);
 
-Array *breadth_first_search(Graph *, char *);
-int dijkstra(Graph *, char *, char *);
-Array *bellman_ford_algorithm(Graph *, char *, int **);
+void common_to_spec(Matrix *);
+Matrix *graph_to_matrix(Graph *);
+void remove_matrix(Matrix *);
+Array *breadth_first_search(Matrix *, char *);
+int dijkstra(Matrix *, char *, char *);
+int **floyd_warshall(Matrix *);
 
 #endif

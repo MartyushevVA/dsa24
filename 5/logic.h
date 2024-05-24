@@ -20,7 +20,5 @@ int L_Min_Dist(Graph*, char*,char*);
 int L_Distribution(Graph*, char*, int);
 
 int L_Import(Graph*, char*);
-int L_Timing();
-int L_Extra_Task(Graph*);
 
 #endif
