@@ -44,6 +44,7 @@ int add_vertex(Graph *, char *, int, int, int);
 int add_edge(Graph *, char *, char *);
 int rm_vertex(Graph *, char *);
 int rm_edge(Graph *, char *, char *);
+int sw_vertex(Graph *, char *);
 int chng_vertex(Graph *, char *, char *, int, int, int);
 void print_as_list(Graph *);
 void print_graphviz(Graph *, FILE *);

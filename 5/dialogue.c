@@ -7,11 +7,11 @@
 int dialog()
 {
     char *msgs[] = {"0. Quit\n", "1. Add vertex\n", "2. Add edge\n", "3. Delete vertex\n",
-                    "4. Delete edge\n", "5. Change Vertex\n", "6. Print as list\n",
-                    "7. Print as graph\n", "8. Descendants\n", "9. Min Distance\n", "10. Distribution\n",
-                    "11. Import\n"};
+                    "4. Delete edge\n", "5. Show info\n", "6. Change Vertex\n", "7. Print as list\n",
+                    "8. Print as graph\n", "9. Descendants\n", "10. Min Distance\n", "11. Distribution\n",
+                    "12. Import\n"};
     char *errmsg = "";
-    int N = 12;
+    int N = 13;
     int choice = 0;
     do
     {
@@ -117,6 +117,20 @@ int D_Delete_Edge(Graph *graph)
     n = L_Delete_Edge(graph, name_1, name_2);
     free(name_1);
     free(name_2);
+    printf("%s\n", errmsgs[n]);
+    return 1;
+}
+
+int D_Show_Info(Graph* graph)
+{
+    char *errmsgs[] = {"| Ok", "| Doesn't exist"};
+    int n;
+    printf("Enter name: ");
+    char *name = readline("");
+    if (!name)
+        return 0;
+    n = L_Show_Vert(graph, name);
+    free(name);
     printf("%s\n", errmsgs[n]);
     return 1;
 }

@@ -8,46 +8,43 @@
 int L_Add_Vert(Graph *graph, char *name, int sex, int born, int died)
 {
     int n = add_vertex(graph, name, sex, born, died);
-    print_as_list(graph);
-    L_Print_Graph(graph);
     return n;
 }
 
 int L_Add_Edge(Graph *graph, char *name_1, char *name_2)
 {
     int n = add_edge(graph, name_1, name_2);
-    print_as_list(graph);
-    L_Print_Graph(graph);
     return n;
 }
 
 int L_Delete_Vert(Graph *graph, char *name)
 {
     int n = rm_vertex(graph, name);
-    print_as_list(graph);
-    L_Print_Graph(graph);
     return n;
 }
 
 int L_Delete_Edge(Graph *graph, char *name_1, char *name_2)
 {
     int n = rm_edge(graph, name_1, name_2);
-    print_as_list(graph);
-    L_Print_Graph(graph);
+    return n;
+}
+
+int L_Show_Vert(Graph *graph, char *name)
+{
+    int n = sw_vertex(graph, name);
     return n;
 }
 
 int L_Change_Vert(Graph *graph, char *name_x, char *name_n, int sex, int born, int died)
 {
     int n = chng_vertex(graph, name_x, name_n, sex, born, died);
-    print_as_list(graph);
-    L_Print_Graph(graph);
     return n;
 }
 
 int L_Print_List(Graph *graph)
 {
     print_as_list(graph);
+    return 0;
 }
 
 int L_Print_Graph(Graph *graph)
@@ -60,6 +57,7 @@ int L_Print_Graph(Graph *graph)
         fprintf(file, "}\n");
         fclose(file);
     }
+    return 0;
 }
 
 int L_Descendants(Graph *graph, char *name)
@@ -126,7 +124,6 @@ int L_Import(Graph *graph, char *fname)
     char *sname = (char *)calloc(1024, sizeof(char));
     while (fscanf(file, "%s %d %d %d\n", nbuf, &buf[0], &buf[1], &buf[2]) == 4)
         add_vertex(graph, nbuf, buf[0], buf[1], buf[2]);
-    fscanf(file, "\n");
     while (fscanf(file, "%s %s\n", nbuf, sname) == 2)
         add_edge(graph, sname, nbuf);
     free(nbuf);

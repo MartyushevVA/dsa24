@@ -92,7 +92,7 @@ Graph *init_graph()
 
 void remove_graph(Graph *graph)
 {
-    if (!graph->head)
+    if (!graph)
         return;
     Vertex *ptr = graph->head;
     Vertex *vprev = NULL;
@@ -217,8 +217,8 @@ int rm_vertex(Graph *graph, char *name)
                 free(temp);
                 break;
             }
-            prev = ptr;
-            ptr = ptr->next;
+            prev = temp;
+            temp = temp->next;
         }
         old = ptr;
         ptr = ptr->next;
@@ -271,6 +271,15 @@ int rm_edge(Graph *graph, char *name_1, char *name_2)
     return 0;
 }
 
+int sw_vertex(Graph *graph, char *name)
+{
+    Vertex *trash, *elem = find_by_name(graph, &trash, name);
+    if (!elem)
+        return 1;
+    printf("%s (%s): %d - %d\n", elem->name, elem->sex ? "F" : "M", elem->born, elem->died);
+    return 0;
+}
+
 int chng_vertex(Graph *graph, char *name_x, char *name_n, int sex, int born, int died)
 {
     Vertex *trash, *elem = find_by_name(graph, &trash, name_x);
@@ -315,7 +324,7 @@ void print_graphviz(Graph *graph, FILE *fp)
         while (temp)
         {
             if (is_connected(ptr, temp))
-                fprintf(fp, "    %s -> %s;\n", ptr->born > temp->born ? temp->name : ptr->name, ptr->born > temp->born ? ptr->name : temp->name);
+                fprintf(fp, "    %s -> %s [dir = none];\n", ptr->born > temp->born ? temp->name : ptr->name, ptr->born > temp->born ? ptr->name : temp->name);
             temp = temp->next;
         }
         ptr = ptr->next;
@@ -369,7 +378,7 @@ Matrix *graph_to_matrix(Graph *graph)
 {
     Matrix *matrix = (Matrix *)malloc(sizeof(Matrix));
     matrix->size = get_size(graph);
-    matrix->field = (int **)malloc(matrix->size * sizeof(int*));
+    matrix->field = (int **)malloc(matrix->size * sizeof(int *));
     matrix->positions = (Array *)malloc(sizeof(Array));
     matrix->positions->size = matrix->size;
     matrix->positions->space = (Vertex **)malloc(matrix->size * sizeof(Vertex *));
