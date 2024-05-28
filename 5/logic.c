@@ -123,7 +123,9 @@ int L_Import(Graph *graph, char *fname)
     char *nbuf = (char *)calloc(1024, sizeof(char));
     char *sname = (char *)calloc(1024, sizeof(char));
     while (fscanf(file, "%s %d %d %d\n", nbuf, &buf[0], &buf[1], &buf[2]) == 4)
+    {
         add_vertex(graph, nbuf, buf[0], buf[1], buf[2]);
+    }
     while (fscanf(file, "%s %s\n", nbuf, sname) == 2)
         add_edge(graph, sname, nbuf);
     free(nbuf);

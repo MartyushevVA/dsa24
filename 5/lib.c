@@ -87,20 +87,34 @@ Vertex *init_vertex(char *name, int sex, int born, int died)
 Graph *init_graph()
 {
     Graph *graph = (Graph *)calloc(1, sizeof(Graph));
+    graph->ks = (Vertex **)calloc(50, sizeof(Vertex *));
+    graph->msize = 50;
     return graph;
+}
+
+int get_hash(char *key)
+{
+    unsigned long hash = 0;
+    int i = 0;
+    while (key[i])
+    {
+        hash = hash * 17 + key[i];
+        i++;
+    }
+    return hash;
 }
 
 void remove_graph(Graph *graph)
 {
     if (!graph)
         return;
-    Vertex *ptr = graph->head;
-    Vertex *vprev = NULL;
     Related *nprev = NULL;
     Related *temp = NULL;
-    while (ptr)
+    for (int i = 0; i < graph->msize; i++)
     {
-        temp = ptr->pair;
+        if (!graph->ks[i])
+            continue;
+        temp = graph->ks[i]->pair;
         nprev = NULL;
         while (temp)
         {
@@ -108,11 +122,10 @@ void remove_graph(Graph *graph)
             temp = temp->next;
             free(nprev);
         }
-        free(ptr->name);
-        vprev = ptr;
-        ptr = ptr->next;
-        free(vprev);
+        free(graph->ks[i]->name);
+        free(graph->ks[i]);
     }
+    free(graph->ks);
     free(graph);
 }
 
@@ -128,19 +141,6 @@ void remove_array(Array *arr)
     free(arr);
 }
 
-Vertex *find_by_name(Graph *graph, Vertex **previos, char *name)
-{
-    Vertex *ptr = graph->head;
-    while (ptr)
-    {
-        if (strcmp(ptr->name, name) == 0)
-            return ptr;
-        (*previos) = ptr;
-        ptr = ptr->next;
-    }
-    return NULL;
-}
-
 int is_connected(Vertex *one, Vertex *another)
 {
     Related *ptr = one->pair;
@@ -153,35 +153,58 @@ int is_connected(Vertex *one, Vertex *another)
     return 0;
 }
 
-int is_exist(Graph *graph, char *name)
+void f_insert(Vertex **arr, int size, Vertex *elem)
 {
-    Vertex *ptr = graph->head;
-    while (ptr)
+    int j = get_hash(elem->name);
+    int i = 0;
+    while (arr[(j + i) % size])
+        i++;
+    arr[(j + i) % size] = elem;
+}
+
+void smart_resize(Graph *graph, int new_msize)
+{
+    Vertex **new_ks = (Vertex **)calloc(new_msize, sizeof(Vertex *));
+    for (int i = 0; i < graph->msize; i++)
+        if (graph->ks[i])
+            f_insert(new_ks, new_msize, graph->ks[i]);
+    graph->msize = new_msize;
+    free(graph->ks);
+    graph->ks = new_ks;
+}
+
+int find(Graph *graph, char *name)
+{
+    int j = get_hash(name);
+    int n = 0;
+    while (graph->ks[(j + n) % graph->msize] && n < graph->msize)
     {
-        if (strcmp(ptr->name, name) == 0)
-            return 1;
-        ptr = ptr->next;
+        if (strcmp(graph->ks[(j + n) % graph->msize]->name, name) == 0)
+            return (j + n) % graph->msize;
+        n++;
     }
-    return 0;
+    return -1;
 }
 
 int add_vertex(Graph *graph, char *name, int sex, int born, int died)
 {
-    if (is_exist(graph, name))
+    if (find(graph, name) != -1)
         return 1;
+    if (graph->csize > 0.5 * graph->msize)
+        smart_resize(graph, 2 * graph->msize);
     Vertex *elem = init_vertex(name, sex, born, died);
-    elem->next = graph->head;
-    graph->head = elem;
+    f_insert(graph->ks, graph->msize, elem);
+    (graph->csize)++;
     return 0;
 }
 
 int add_edge(Graph *graph, char *name_1, char *name_2)
 {
-    Vertex *trash;
-    Vertex *one = find_by_name(graph, &trash, name_1);
-    Vertex *another = find_by_name(graph, &trash, name_2);
-    if (!one || !another || one == another)
+    int f = find(graph, name_1), s = find(graph, name_2);
+    if (f == -1 || s == -1 || f == s)
         return 1;
+    Vertex *one = graph->ks[f];
+    Vertex *another = graph->ks[s];
     if (is_connected(one, another))
         return 2;
     Related *new = (Related *)malloc(sizeof(Related));
@@ -197,10 +220,11 @@ int add_edge(Graph *graph, char *name_1, char *name_2)
 
 int rm_vertex(Graph *graph, char *name)
 {
-    Vertex *previos = NULL;
-    Vertex *elem = find_by_name(graph, &previos, name);
-    if (!elem)
+    int e = find(graph, name);
+    if (e == -1)
         return 1;
+    Vertex *elem = graph->ks[e];
+    graph->ks[e] = NULL;
     Related *ptr = elem->pair;
     Related *old = NULL;
     while (ptr)
@@ -225,22 +249,21 @@ int rm_vertex(Graph *graph, char *name)
         free(old);
     }
     free(elem->name);
-    if (!previos)
-        graph->head = elem->next;
-    else
-        previos->next = elem->next;
     free(elem);
+    (graph->csize)--;
+    if (graph->csize < 0.25 * graph->msize)
+        smart_resize(graph, 0.5 * graph->msize);
     return 0;
 }
 
 int rm_edge(Graph *graph, char *name_1, char *name_2)
 {
-    Vertex *trash;
-    Vertex *one = find_by_name(graph, &trash, name_1);
-    Vertex *another = find_by_name(graph, &trash, name_2);
-    if (!one || !another || one == another)
+    int f = find(graph, name_1), s = find(graph, name_2);
+    if (f == -1 || s == -1 || f == s)
         return 1;
-    if (!is_connected(one, another))
+    Vertex *one = graph->ks[f];
+    Vertex *another = graph->ks[s];
+    if (is_connected(one, another))
         return 2;
     Related *temp = one->pair, *prev = NULL;
     while (temp)
@@ -273,74 +296,60 @@ int rm_edge(Graph *graph, char *name_1, char *name_2)
 
 int sw_vertex(Graph *graph, char *name)
 {
-    Vertex *trash, *elem = find_by_name(graph, &trash, name);
-    if (!elem)
+    int e = find(graph, name);
+    if (e == -1)
         return 1;
+    Vertex *elem = graph->ks[e];
     printf("%s (%s): %d - %d\n", elem->name, elem->sex ? "F" : "M", elem->born, elem->died);
     return 0;
 }
 
 int chng_vertex(Graph *graph, char *name_x, char *name_n, int sex, int born, int died)
 {
-    Vertex *trash, *elem = find_by_name(graph, &trash, name_x);
-    if (!elem)
+    int e = find(graph, name_x);
+    if (e == -1)
         return 1;
+    Vertex *elem = graph->ks[e];
+    graph->ks[e] = NULL;
     free(elem->name);
     elem->name = (char *)calloc(strlen(name_n) + 1, sizeof(char));
     strcpy(elem->name, name_n);
     elem->born = born;
     elem->died = died;
     elem->sex = sex;
+    f_insert(graph->ks, graph->msize, elem);
     return 0;
 }
 
 void print_as_list(Graph *graph)
 {
-    Vertex *ptr = graph->head;
     Related *temp = NULL;
-    while (ptr)
+    for (int i = 0; i < graph->msize; i++)
     {
-        printf("%s", ptr->name);
-        temp = ptr->pair;
+        if (!graph->ks[i])
+            continue;
+        printf("%s", graph->ks[i]->name);
+        temp = graph->ks[i]->pair;
         while (temp)
         {
             printf(" --> %s", temp->node->name);
             temp = temp->next;
         }
-        ptr = ptr->next;
         printf("\n");
     }
 }
 
 void print_graphviz(Graph *graph, FILE *fp)
 {
-    Vertex *ptr = graph->head, *temp = NULL;
-    if (!ptr)
-        return;
-    while (ptr)
+    for (int i = 0; i < graph->msize; i++)
     {
-        temp = ptr->next;
-        fprintf(fp, "    %s;\n", ptr->name);
-        while (temp)
-        {
-            if (is_connected(ptr, temp))
-                fprintf(fp, "    %s -> %s [dir = none];\n", ptr->born > temp->born ? temp->name : ptr->name, ptr->born > temp->born ? ptr->name : temp->name);
-            temp = temp->next;
-        }
-        ptr = ptr->next;
+        if (!graph->ks[i])
+            continue;
+        fprintf(fp, "    %s;\n", graph->ks[i]->name);
+        for (int j = i; j < graph->msize; j++)
+            if (is_connected(graph->ks[i], graph->ks[j]))
+                fprintf(fp, "    %s -> %s [dir = none];\n", graph->ks[i]->born > graph->ks[j]->born ? graph->ks[j]->name : graph->ks[i]->name, graph->ks[i]->born > graph->ks[j]->born ? graph->ks[i]->name : graph->ks[j]->name);
     }
-}
-
-int get_size(Graph *graph)
-{
-    int size = 0;
-    Vertex *ptr = graph->head;
-    while (ptr)
-    {
-        size++;
-        ptr = ptr->next;
-    }
-    return size;
 }
 
 int pointer_to_index(Array *arr, Vertex *ver)
@@ -359,11 +368,6 @@ int name_to_index(Array *arr, char *name)
     return -1;
 }
 
-int is_name_in_list(Array *arr, char *name)
-{
-    return name_to_index(arr, name) != -1;
-}
-
 void remove_matrix(Matrix *matr)
 {
     for (int i = 0; i < matr->size; i++)
@@ -377,28 +381,36 @@ void remove_matrix(Matrix *matr)
 Matrix *graph_to_matrix(Graph *graph)
 {
     Matrix *matrix = (Matrix *)malloc(sizeof(Matrix));
-    matrix->size = get_size(graph);
+    matrix->size = graph->csize;
     matrix->field = (int **)malloc(matrix->size * sizeof(int *));
     matrix->positions = (Array *)malloc(sizeof(Array));
     matrix->positions->size = matrix->size;
     matrix->positions->space = (Vertex **)malloc(matrix->size * sizeof(Vertex *));
-    Vertex *ptr = graph->head;
-    for (int i = 0; i < matrix->size; i++)
+    int pos = 0;
+    for (int v = 0; v < graph->msize; v++)
     {
-        matrix->positions->space[i] = ptr;
-        ptr = ptr->next;
-        matrix->field[i] = (int *)calloc(matrix->size, sizeof(int));
-        for (int j = 0; j < matrix->size; j++)
-            matrix->field[i][j] = 999999999;
-    }
-    for (int i = 0; i < matrix->size; i++)
-    {
-        matrix->field[i][i] = 0;
-        Related *ptr = matrix->positions->space[i]->pair;
-        while (ptr)
+        if (graph->ks[v])
         {
-            matrix->field[i][name_to_index(matrix->positions, ptr->node->name)] = 1;
-            ptr = ptr->next;
+            matrix->positions->space[pos] = graph->ks[v];
+            matrix->field[pos] = (int *)calloc(matrix->size, sizeof(int));
+            for (int j = 0; j < matrix->size; j++)
+                matrix->field[pos][j] = 999999999;
+            pos++;
+        }
+    }
+    pos = 0;
+    for (int v = 0; v < graph->msize; v++)
+    {
+        if (graph->ks[v])
+        {
+            matrix->field[pos][pos] = 0;
+            Related *ptr = matrix->positions->space[pos]->pair;
+            while (ptr)
+            {
+                matrix->field[pos][pointer_to_index(matrix->positions, ptr->node)] = 1;
+                ptr = ptr->next;
+            }
+            pos++;
         }
     }
     if (!matrix->size)

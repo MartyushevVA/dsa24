@@ -12,12 +12,13 @@ typedef struct Vertex
     char *name;
     int sex, born, died;
     Related *pair;
-    struct Vertex *next;
 } Vertex;
 
 typedef struct Graph
 {
-    Vertex *head;
+    Vertex **ks;
+    int msize;
+    int csize;
 } Graph;
 
 typedef struct Array
@@ -29,7 +30,7 @@ typedef struct Array
 typedef struct Matrix
 {
     int size;
-    Array *positions;
+    Array*positions;
     int **field;
 } Matrix;
 
