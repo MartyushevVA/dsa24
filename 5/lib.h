@@ -30,7 +30,7 @@ typedef struct Array
 typedef struct Matrix
 {
     int size;
-    Array*positions;
+    Array *positions;
     int **field;
 } Matrix;
 
@@ -54,7 +54,7 @@ void common_to_spec(Matrix *);
 Matrix *graph_to_matrix(Graph *);
 void remove_matrix(Matrix *);
 Array *breadth_first_search(Matrix *, char *);
-int dijkstra(Matrix *, char *, char *);
+Array *dijkstra(Matrix *, char *, char *);
 int **floyd_warshall(Matrix *);
 
 #endif

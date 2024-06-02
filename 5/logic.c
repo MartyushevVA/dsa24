@@ -80,11 +80,14 @@ int L_Min_Dist(Graph *graph, char *name_1, char *name_2)
     Matrix *matr = graph_to_matrix(graph);
     if (!matr)
         return 1;
-    int n = dijkstra(matr, name_1, name_2);
+    Array* arr = dijkstra(matr, name_1, name_2);
     remove_matrix(matr);
-    if (n == -1)
+    if (!arr)
         return 2;
-    printf("Relation degree: %d\n", n);
+    print_array(arr);
+    printf("Relation degree: %d\n", arr->size - 1);
+    remove_array(arr);
+
     return 0;
 }
 
@@ -123,9 +126,7 @@ int L_Import(Graph *graph, char *fname)
     char *nbuf = (char *)calloc(1024, sizeof(char));
     char *sname = (char *)calloc(1024, sizeof(char));
     while (fscanf(file, "%s %d %d %d\n", nbuf, &buf[0], &buf[1], &buf[2]) == 4)
-    {
         add_vertex(graph, nbuf, buf[0], buf[1], buf[2]);
-    }
     while (fscanf(file, "%s %s\n", nbuf, sname) == 2)
         add_edge(graph, sname, nbuf);
     free(nbuf);

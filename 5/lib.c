@@ -467,16 +467,20 @@ Array *breadth_first_search(Matrix *matr, char *name)
     return arr;
 }
 
-int dijkstra(Matrix *matr, char *name_1, char *name_2)
+Array* dijkstra(Matrix *matr, char *name_1, char *name_2)
 {
     int from = name_to_index(matr->positions, name_1);
     int to = name_to_index(matr->positions, name_2);
     if (from == -1 || to == -1)
-        return -1;
+        return NULL;
     int *dist = (int *)malloc(matr->size * sizeof(int));
     int *visited = (int *)calloc(matr->size, sizeof(int));
+    int *prev = (int *)malloc(matr->size * sizeof(int));
     for (int i = 0; i < matr->size; i++)
+    {
         dist[i] = 999999999;
+        prev[i] = -1;
+    }
     dist[from] = 0;
     for (int i = 0; i < matr->size; i++)
     {
@@ -489,12 +493,24 @@ int dijkstra(Matrix *matr, char *name_1, char *name_2)
         visited[nearest] = 1;
         for (int k = 0; k < matr->size; k++)
             if (dist[k] > dist[nearest] + matr->field[nearest][k])
+            {
                 dist[k] = dist[nearest] + matr->field[nearest][k];
+                prev[k] = nearest;
+            }
     }
-    int res = dist[to];
+    Array *arr = (Array *)malloc(sizeof(Array));
+    arr->size = dist[to] + 1;
+    arr->space = (Vertex **)malloc(arr->size * sizeof(Vertex *));
+    int k = dist[to];
+    for (int i = to; i != -1; i = prev[i])
+    {
+        (arr->space)[k] = (matr->positions->space)[i];
+        k--;
+    }
     free(dist);
     free(visited);
-    return res;
+    free(prev);
+    return arr;
 }
 
 int count_of(Array *arr, int *dist, int size, int key)
