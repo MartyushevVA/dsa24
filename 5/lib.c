@@ -87,8 +87,8 @@ Vertex *init_vertex(char *name, int sex, int born, int died)
 Graph *init_graph()
 {
     Graph *graph = (Graph *)calloc(1, sizeof(Graph));
-    graph->ks = (Vertex **)calloc(50, sizeof(Vertex *));
-    graph->msize = 50;
+    graph->msize = 5;
+    graph->ks = (Vertex **)calloc(graph->msize, sizeof(Vertex *));
     return graph;
 }
 
@@ -98,10 +98,10 @@ int get_hash(char *key)
     int i = 0;
     while (key[i])
     {
-        hash = hash * 17 + key[i];
+        hash = hash + key[i];
         i++;
     }
-    return hash;
+    return hash * 37;
 }
 
 void remove_graph(Graph *graph)
@@ -489,12 +489,7 @@ Array* dijkstra(Matrix *matr, char *name_1, char *name_2)
             if (!visited[v] && (nearest == -1 || dist[nearest] > dist[v]))
                 nearest = v;
         if (dist[nearest] == 999999999)
-        {
-            free(dist);
-            free(visited);
-            free(prev);
-            return NULL;
-        }
+            break;
         visited[nearest] = 1;
         for (int k = 0; k < matr->size; k++)
             if (dist[k] > dist[nearest] + matr->field[nearest][k])
@@ -502,6 +497,13 @@ Array* dijkstra(Matrix *matr, char *name_1, char *name_2)
                 dist[k] = dist[nearest] + matr->field[nearest][k];
                 prev[k] = nearest;
             }
+    }
+    if (dist[to] == 999999999)
+    {
+        free(dist);
+        free(visited);
+        free(prev);
+        return NULL;
     }
     Array *arr = (Array *)malloc(sizeof(Array));
     arr->size = dist[to] + 1;
