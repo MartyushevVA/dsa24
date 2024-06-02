@@ -489,7 +489,12 @@ Array* dijkstra(Matrix *matr, char *name_1, char *name_2)
             if (!visited[v] && (nearest == -1 || dist[nearest] > dist[v]))
                 nearest = v;
         if (dist[nearest] == 999999999)
-            break;
+        {
+            free(dist);
+            free(visited);
+            free(prev);
+            return NULL;
+        }
         visited[nearest] = 1;
         for (int k = 0; k < matr->size; k++)
             if (dist[k] > dist[nearest] + matr->field[nearest][k])
